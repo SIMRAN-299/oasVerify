@@ -1,0 +1,52 @@
+{
+    "global": {
+        "path_parameters": {
+            "zoneId": "ILZ014",
+            "area": "NY",
+            "region": "AL",
+            "id": "urn:oid:2.16.840.1.113883.1.2.1",
+            "cwsuId": "ZAU",
+            "date": "2023-10-01",
+            "sequence": "1",
+            "atsu": "KZAK",
+            "time": "1200",
+            "wfo": "LOT",
+            "x": "73",
+            "y": "61",
+            "point": "39.7456,-97.0892",
+            "officeId": "LOT",
+            "stationId": "KORD",
+            "typeId": "123e4567-e89b-12d3-a456-426614174000",
+            "locationId": "123e4567-e89b-12d3-a456-426614174000",
+            "type": "land"
+        },
+        "payload_overrides": {
+            "status": "Actual",
+            "messageType": "Alert",
+            "severity": "Extreme",
+            "certainty": "Observed"
+        }
+    },
+    "endpoints": {
+        "/thumbnails/satellite/{area}": {
+            "path_parameters": {
+                "area": "a"
+            }
+        },
+        "/stations/{stationId}/observations/{time}": {
+            "path_parameters": {
+                "time": "2026-01-01T00:00:00Z"
+            }
+        },
+        "/aviation/cwsus/{cwsuId}/cwas/{date}/{sequence}": {
+            "path_parameters": {
+                "sequence": 100
+            }
+        },
+        "/radar/queues/{host}": {
+            "path_parameters": {
+                "host": "rds"
+            }
+        }
+    }
+}

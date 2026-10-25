@@ -1,0 +1,29 @@
+# Core ADK and Utilities
+google-adk>=2.6.0
+google-genai
+pydantic>=2.0.0
+
+# OpenAPI Parsing
+prance
+openapi-spec-validator
+PyYAML
+
+# GitHub Integration
+PyGithub
+
+# Code Generation and Templating
+jinja2
+
+# Formatting & Linting
+black
+flake8
+pytest
+requests
+
+# API Server & Runtime
+fastapi
+uvicorn
+python-multipart
+httpx
+pytest-asyncio
+python-dotenv

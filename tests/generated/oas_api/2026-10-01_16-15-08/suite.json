@@ -1,0 +1,2253 @@
+{
+  "suite_id": "suite_905c00c2-0473-4515-8331-a51eb699e1b6",
+  "target_base_url": "https://35-244-241-176.nip.io/weather_oas",
+  "scenarios": [
+    {
+      "scenario_id": "SCENARIO-PROD-001",
+      "name": "Product Types and Hierarchy Traversal",
+      "description": "Verify product discovery by exploring catalog product types, retrieving product lists for a given type, examining individual product details, and navigating location-specific products.",
+      "scenario_type": "HAPPY_PATH_E2E",
+      "tags": [
+        "products",
+        "e2e",
+        "catalog",
+        "types"
+      ],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "STEP-PROD-001-1",
+          "operation_id": "product_types",
+          "method": "GET",
+          "path_template": "/products/types",
+          "path_params": {},
+          "query_params": {},
+          "headers": {
+            "Accept": "application/ld+json"
+          },
+          "request_body": null,
+          "captures": [
+            {
+              "variable_name": "first_type_code",
+              "json_path": "$.@graph[0].productCode"
+            }
+          ],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            },
+            {
+              "target_expression": "$.@graph[0].productCode",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "STEP-PROD-001-2",
+          "operation_id": "products_type",
+          "method": "GET",
+          "path_template": "/products/types/{typeId}",
+          "path_params": {
+            "typeId": "{first_type_code}"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/ld+json"
+          },
+          "request_body": null,
+          "captures": [
+            {
+              "variable_name": "product_id",
+              "json_path": "$.@graph[0].id"
+            }
+          ],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            },
+            {
+              "target_expression": "$.@graph[0].productCode",
+              "operator": "EQUALS",
+              "expected_value": "{first_type_code}"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "STEP-PROD-001-3",
+          "operation_id": "product",
+          "method": "GET",
+          "path_template": "/products/{productId}",
+          "path_params": {
+            "productId": "{product_id}"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/ld+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.id",
+              "operator": "EQUALS",
+              "expected_value": "{product_id}"
+            },
+            {
+              "target_expression": "$.issuingOffice",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "STEP-PROD-001-4",
+          "operation_id": "products_type_locations",
+          "method": "GET",
+          "path_template": "/products/types/{typeId}/locations",
+          "path_params": {
+            "typeId": "{first_type_code}"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/ld+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.locations",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "STEP-PROD-001-5",
+          "operation_id": "products_type_location",
+          "method": "GET",
+          "path_template": "/products/types/{typeId}/locations/{locationId}",
+          "path_params": {
+            "typeId": "{first_type_code}",
+            "locationId": "BOU"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/ld+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "STEP-PROD-001-6",
+          "operation_id": "latest_product_type_location",
+          "method": "GET",
+          "path_template": "/products/types/{typeId}/locations/{locationId}/latest",
+          "path_params": {
+            "typeId": "{first_type_code}",
+            "locationId": "BOU"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/ld+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.id",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            },
+            {
+              "target_expression": "$.productCode",
+              "operator": "EQUALS",
+              "expected_value": "{first_type_code}"
+            }
+          ],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "SCENARIO-PROD-002",
+      "name": "Product Location Discovery and Filtered Search",
+      "description": "Discover product locations, inspect available types at a location, search product collections using specific query filters, and verify detailed content.",
+      "scenario_type": "HAPPY_PATH_E2E",
+      "tags": [
+        "products",
+        "e2e",
+        "search",
+        "locations"
+      ],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "STEP-PROD-002-1",
+          "operation_id": "product_locations",
+          "method": "GET",
+          "path_template": "/products/locations",
+          "path_params": {},
+          "query_params": {},
+          "headers": {
+            "Accept": "application/ld+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.locations",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "STEP-PROD-002-2",
+          "operation_id": "location_products",
+          "method": "GET",
+          "path_template": "/products/locations/{locationId}/types",
+          "path_params": {
+            "locationId": "BOU"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/ld+json"
+          },
+          "request_body": null,
+          "captures": [
+            {
+              "variable_name": "loc_type_code",
+              "json_path": "$.@graph[0].productCode"
+            }
+          ],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "STEP-PROD-002-3",
+          "operation_id": "products_query",
+          "method": "GET",
+          "path_template": "/products",
+          "path_params": {},
+          "query_params": {
+            "location": [
+              "BOU"
+            ],
+            "type": [
+              "{loc_type_code}"
+            ],
+            "limit": 5
+          },
+          "headers": {
+            "Accept": "application/ld+json"
+          },
+          "request_body": null,
+          "captures": [
+            {
+              "variable_name": "queried_product_id",
+              "json_path": "$.@graph[0].id"
+            }
+          ],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "STEP-PROD-002-4",
+          "operation_id": "product",
+          "method": "GET",
+          "path_template": "/products/{productId}",
+          "path_params": {
+            "productId": "{queried_product_id}"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/ld+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.id",
+              "operator": "EQUALS",
+              "expected_value": "{queried_product_id}"
+            },
+            {
+              "target_expression": "$.productName",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "SCENARIO-PROD-003",
+      "name": "Products Validation and Boundary Negative Checks",
+      "description": "Verify appropriate error handling for invalid product IDs, non-existent product types, and out-of-range pagination limits.",
+      "scenario_type": "BOUNDARY_NEGATIVE",
+      "tags": [
+        "products",
+        "negative",
+        "validation"
+      ],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "STEP-PROD-003-1",
+          "operation_id": "product",
+          "method": "GET",
+          "path_template": "/products/{productId}",
+          "path_params": {
+            "productId": "non-existent-product-id-00000"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/problem+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.status",
+              "operator": "EQUALS",
+              "expected_value": "404"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "STEP-PROD-003-2",
+          "operation_id": "products_type",
+          "method": "GET",
+          "path_template": "/products/types/{typeId}",
+          "path_params": {
+            "typeId": "INVALID_TYPE_XYZ_999"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/problem+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.status",
+              "operator": "EQUALS",
+              "expected_value": "404"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "STEP-PROD-003-3",
+          "operation_id": "products_query",
+          "method": "GET",
+          "path_template": "/products",
+          "path_params": {},
+          "query_params": {
+            "limit": -5
+          },
+          "headers": {
+            "Accept": "application/problem+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 400,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.status",
+              "operator": "EQUALS",
+              "expected_value": "400"
+            }
+          ],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "SCENARIO_ALERTS_ACTIVE_DISCOVERY",
+      "name": "Active Alerts Discovery and Regional Aggregations",
+      "description": "Verifies metadata discovery of alert types and active counts, followed by queries filtered by regional partitions including active alerts list, area, zone, and marine/land region.",
+      "scenario_type": "HAPPY_PATH_E2E",
+      "tags": [
+        "alerts",
+        "active",
+        "discovery",
+        "e2e"
+      ],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "step_fetch_alert_types",
+          "operation_id": "alerts_types",
+          "method": "GET",
+          "path_template": "/alerts/types",
+          "path_params": {},
+          "query_params": {},
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.eventTypes",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step_fetch_active_alerts_count",
+          "operation_id": "alerts_active_count",
+          "method": "GET",
+          "path_template": "/alerts/active/count",
+          "path_params": {},
+          "query_params": {},
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.total",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step_fetch_active_alerts_list",
+          "operation_id": "alerts_active",
+          "method": "GET",
+          "path_template": "/alerts/active",
+          "path_params": {},
+          "query_params": {
+            "severity": [
+              "Severe",
+              "Extreme"
+            ],
+            "urgency": [
+              "Immediate",
+              "Expected"
+            ]
+          },
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.title",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step_fetch_active_alerts_by_area",
+          "operation_id": "alerts_active_area",
+          "method": "GET",
+          "path_template": "/alerts/active/area/{area}",
+          "path_params": {
+            "area": "TX"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.title",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step_fetch_active_alerts_by_zone",
+          "operation_id": "alerts_active_zone",
+          "method": "GET",
+          "path_template": "/alerts/active/zone/{zoneId}",
+          "path_params": {
+            "zoneId": "TXZ101"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.title",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step_fetch_active_alerts_by_region",
+          "operation_id": "alerts_active_region",
+          "method": "GET",
+          "path_template": "/alerts/active/region/{region}",
+          "path_params": {
+            "region": "AL"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.title",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "SCENARIO_ALERTS_QUERY_AND_DETAIL",
+      "name": "Alerts Catalog Query and Item Deep-Dive Flow",
+      "description": "Queries the global alerts catalog with pagination parameters, captures a resulting alert identifier, and fetches its single-resource detail representation.",
+      "scenario_type": "HAPPY_PATH_E2E",
+      "tags": [
+        "alerts",
+        "catalog",
+        "state_chaining",
+        "e2e"
+      ],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "step_query_alerts_catalog",
+          "operation_id": "alerts_query",
+          "method": "GET",
+          "path_template": "/alerts",
+          "path_params": {},
+          "query_params": {
+            "limit": 5,
+            "status": [
+              "actual"
+            ]
+          },
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [
+            {
+              "variable_name": "target_alert_id",
+              "json_path": "$.entry[0].id"
+            }
+          ],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.entry",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step_fetch_alert_detail",
+          "operation_id": "alerts_single",
+          "method": "GET",
+          "path_template": "/alerts/{id}",
+          "path_params": {
+            "id": "{target_alert_id}"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "SCENARIO_ALERTS_BOUNDARY_VALIDATION",
+      "name": "Alerts Boundary Parameter Validation and Resource Handling",
+      "description": "Verifies API input validation for malformed temporal query parameters, nonexistent alert identifiers, and invalid zone identifiers.",
+      "scenario_type": "BOUNDARY_NEGATIVE",
+      "tags": [
+        "alerts",
+        "validation",
+        "negative"
+      ],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "step_query_alerts_invalid_date_format",
+          "operation_id": "alerts_query",
+          "method": "GET",
+          "path_template": "/alerts",
+          "path_params": {},
+          "query_params": {
+            "start": "not-a-valid-iso-date"
+          },
+          "headers": {
+            "Accept": "application/problem+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 400,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.status",
+              "operator": "EQUALS",
+              "expected_value": "400"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step_fetch_nonexistent_alert_id",
+          "operation_id": "alerts_single",
+          "method": "GET",
+          "path_template": "/alerts/{id}",
+          "path_params": {
+            "id": "urn:oid:2.49.0.1.840.0.nonexistent_id_00000000"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/problem+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.status",
+              "operator": "EQUALS",
+              "expected_value": "404"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step_fetch_invalid_zone_format",
+          "operation_id": "alerts_active_zone",
+          "method": "GET",
+          "path_template": "/alerts/active/zone/{zoneId}",
+          "path_params": {
+            "zoneId": "INVALID_ZONE_$$$"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/problem+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 400,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.status",
+              "operator": "EQUALS",
+              "expected_value": "400"
+            }
+          ],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "SCENARIO-CWSU-CWA-E2E",
+      "name": "Center Weather Advisory Flow",
+      "description": "Inspect Center Weather Service Unit metadata and retrieve CWA advisories and details.",
+      "scenario_type": "HAPPY_PATH_E2E",
+      "tags": [
+        "aviation",
+        "cwsu",
+        "cwa"
+      ],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "step-1-get-cwsu",
+          "operation_id": "cwsu",
+          "method": "GET",
+          "path_template": "/aviation/cwsus/{cwsuId}",
+          "path_params": {
+            "cwsuId": "ZOB"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [
+            {
+              "variable_name": "target_cwsu_id",
+              "json_path": "$.id"
+            }
+          ],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.id",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            },
+            {
+              "target_expression": "$.id",
+              "operator": "CONTAINS",
+              "expected_value": "ZOB"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step-2-list-cwas",
+          "operation_id": "cwas",
+          "method": "GET",
+          "path_template": "/aviation/cwsus/{cwsuId}/cwas",
+          "path_params": {
+            "cwsuId": "ZOB"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step-3-get-specific-cwa",
+          "operation_id": "cwa",
+          "method": "GET",
+          "path_template": "/aviation/cwsus/{cwsuId}/cwas/{date}/{sequence}",
+          "path_params": {
+            "cwsuId": "ZOB",
+            "date": "2024-03-20",
+            "sequence": 101
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.id",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "SCENARIO-SIGMET-E2E",
+      "name": "Aviation SIGMET Navigation Flow",
+      "description": "Query SIGMETs globally and progressively drill down by ATSU identifier, date, and timestamp.",
+      "scenario_type": "HAPPY_PATH_E2E",
+      "tags": [
+        "aviation",
+        "sigmet"
+      ],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "step-1-query-sigmets",
+          "operation_id": "sigmetQuery",
+          "method": "GET",
+          "path_template": "/aviation/sigmets",
+          "path_params": {},
+          "query_params": {
+            "atsu": "KKCI",
+            "sequence": "1"
+          },
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step-2-sigmets-by-atsu",
+          "operation_id": "sigmetsByATSU",
+          "method": "GET",
+          "path_template": "/aviation/sigmets/{atsu}",
+          "path_params": {
+            "atsu": "KKCI"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step-3-sigmets-by-atsu-date",
+          "operation_id": "sigmetsByATSUByDate",
+          "method": "GET",
+          "path_template": "/aviation/sigmets/{atsu}/{date}",
+          "path_params": {
+            "atsu": "KKCI",
+            "date": "2024-03-20"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step-4-sigmet-detail",
+          "operation_id": "sigmet",
+          "method": "GET",
+          "path_template": "/aviation/sigmets/{atsu}/{date}/{time}",
+          "path_params": {
+            "atsu": "KKCI",
+            "date": "2024-03-20",
+            "time": "1200"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.id",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "SCENARIO-AVIATION-BOUNDARY-NEGATIVE",
+      "name": "Aviation Invalid Identifiers Boundary Negative Tests",
+      "description": "Validate that non-existent unit IDs and invalid date formats return appropriate client error status codes.",
+      "scenario_type": "BOUNDARY_NEGATIVE",
+      "tags": [
+        "aviation",
+        "validation",
+        "negative"
+      ],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "step-1-invalid-cwsu-id",
+          "operation_id": "cwsu",
+          "method": "GET",
+          "path_template": "/aviation/cwsus/{cwsuId}",
+          "path_params": {
+            "cwsuId": "INVALID_CWSU_999"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.status",
+              "operator": "EQUALS",
+              "expected_value": "404"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step-2-malformed-date-sigmet",
+          "operation_id": "sigmetsByATSUByDate",
+          "method": "GET",
+          "path_template": "/aviation/sigmets/{atsu}/{date}",
+          "path_params": {
+            "atsu": "KKCI",
+            "date": "invalid-date-format"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 400,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.title",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "SCENARIO-STATION-E2E-001",
+      "name": "Station Observation Discovery and Detailed Telemetry Flow",
+      "description": "Discovers active weather stations, fetches station metadata, inspects latest observation, and drills down into observation time series records.",
+      "scenario_type": "HAPPY_PATH_E2E",
+      "tags": [
+        "stations",
+        "observations",
+        "e2e"
+      ],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "step_1_list_stations",
+          "operation_id": "obs_stations",
+          "method": "GET",
+          "path_template": "/stations",
+          "path_params": {},
+          "query_params": {
+            "limit": 5
+          },
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [
+            {
+              "variable_name": "station_id",
+              "json_path": "$.features[0].properties.stationIdentifier"
+            }
+          ],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.features",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step_2_get_station_metadata",
+          "operation_id": "obs_station",
+          "method": "GET",
+          "path_template": "/stations/{stationId}",
+          "path_params": {
+            "stationId": "{station_id}"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.properties.stationIdentifier",
+              "operator": "EQUALS",
+              "expected_value": "{station_id}"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step_3_get_latest_observation",
+          "operation_id": "station_observation_latest",
+          "method": "GET",
+          "path_template": "/stations/{stationId}/observations/latest",
+          "path_params": {
+            "stationId": "{station_id}"
+          },
+          "query_params": {
+            "require_qc": false
+          },
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [
+            {
+              "variable_name": "observation_time",
+              "json_path": "$.properties.timestamp"
+            }
+          ],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.properties.timestamp",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step_4_get_observation_at_time",
+          "operation_id": "station_observation_time",
+          "method": "GET",
+          "path_template": "/stations/{stationId}/observations/{time}",
+          "path_params": {
+            "stationId": "{station_id}",
+            "time": "{observation_time}"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.properties.timestamp",
+              "operator": "EQUALS",
+              "expected_value": "{observation_time}"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step_5_get_observation_list",
+          "operation_id": "station_observation_list",
+          "method": "GET",
+          "path_template": "/stations/{stationId}/observations",
+          "path_params": {
+            "stationId": "{station_id}"
+          },
+          "query_params": {
+            "limit": 10
+          },
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.features",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "SCENARIO-STATION-TAF-002",
+      "name": "Station Aviation Terminal Aerodrome Forecast (TAF) Flow",
+      "description": "Verifies retrieval of aviation TAF forecasts and specific timestamped TAF reports for a major airport station.",
+      "scenario_type": "HAPPY_PATH_E2E",
+      "tags": [
+        "stations",
+        "aviation",
+        "taf"
+      ],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "step_1_lookup_airport_station",
+          "operation_id": "obs_station",
+          "method": "GET",
+          "path_template": "/stations/{stationId}",
+          "path_params": {
+            "stationId": "KJFK"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.properties.stationIdentifier",
+              "operator": "EQUALS",
+              "expected_value": "KJFK"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step_2_get_station_tafs",
+          "operation_id": "tafs",
+          "method": "GET",
+          "path_template": "/stations/{stationId}/tafs",
+          "path_params": {
+            "stationId": "KJFK"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.features",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step_3_get_specific_taf",
+          "operation_id": "taf",
+          "method": "GET",
+          "path_template": "/stations/{stationId}/tafs/{date}/{time}",
+          "path_params": {
+            "stationId": "KJFK",
+            "date": "2024-01-01",
+            "time": "0000Z"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.id",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "SCENARIO-STATION-BOUNDARY-003",
+      "name": "Station Boundary and Negative Input Validation",
+      "description": "Tests system boundaries by providing invalid station identifiers, out-of-range pagination limits, and malformed observation timestamps.",
+      "scenario_type": "BOUNDARY_NEGATIVE",
+      "tags": [
+        "stations",
+        "negative",
+        "validation"
+      ],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "step_1_invalid_pagination_limit",
+          "operation_id": "obs_stations",
+          "method": "GET",
+          "path_template": "/stations",
+          "path_params": {},
+          "query_params": {
+            "limit": -5
+          },
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 400,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.status",
+              "operator": "EQUALS",
+              "expected_value": "400"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step_2_nonexistent_station",
+          "operation_id": "obs_station",
+          "method": "GET",
+          "path_template": "/stations/{stationId}",
+          "path_params": {
+            "stationId": "INVALID_STATION_CODE"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.status",
+              "operator": "EQUALS",
+              "expected_value": "404"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step_3_malformed_observation_timestamp",
+          "operation_id": "station_observation_time",
+          "method": "GET",
+          "path_template": "/stations/{stationId}/observations/{time}",
+          "path_params": {
+            "stationId": "KJFK",
+            "time": "invalid-timestamp-format"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 400,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.type",
+              "operator": "CONTAINS",
+              "expected_value": "exception"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "step_4_nonexistent_station_latest_obs",
+          "operation_id": "station_observation_latest",
+          "method": "GET",
+          "path_template": "/stations/{stationId}/observations/latest",
+          "path_params": {
+            "stationId": "NONEXISTENT_STATION"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.status",
+              "operator": "EQUALS",
+              "expected_value": "404"
+            }
+          ],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "RADAR-E2E-001",
+      "name": "Radar Infrastructure and Station Telemetry End-to-End Flow",
+      "description": "Discovers radar servers and stations, inspecting server topology, station metadata, active alarms, profiler data, and host queue statistics.",
+      "scenario_type": "HAPPY_PATH_E2E",
+      "tags": [
+        "radar",
+        "telemetry",
+        "e2e",
+        "integration"
+      ],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "RADAR-STEP-001",
+          "operation_id": "radar_servers",
+          "method": "GET",
+          "path_template": "/radar/servers",
+          "path_params": {},
+          "query_params": {
+            "reportingHost": "ldm1.weather.gov"
+          },
+          "headers": {
+            "Accept": "application/ld+json"
+          },
+          "request_body": null,
+          "captures": [
+            {
+              "variable_name": "discovered_server_id",
+              "json_path": "$.@graph[0].id"
+            },
+            {
+              "variable_name": "discovered_host",
+              "json_path": "$.@graph[0].reportingHost"
+            }
+          ],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "RADAR-STEP-002",
+          "operation_id": "radar_server",
+          "method": "GET",
+          "path_template": "/radar/servers/{id}",
+          "path_params": {
+            "id": "{discovered_server_id}"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/ld+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.id",
+              "operator": "EQUALS",
+              "expected_value": "{discovered_server_id}"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "RADAR-STEP-003",
+          "operation_id": "radar_stations",
+          "method": "GET",
+          "path_template": "/radar/stations",
+          "path_params": {},
+          "query_params": {
+            "stationType": [
+              "NEXRAD"
+            ]
+          },
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [
+            {
+              "variable_name": "discovered_station_id",
+              "json_path": "$.features[0].properties.stationId"
+            },
+            {
+              "variable_name": "station_host",
+              "json_path": "$.features[0].properties.host"
+            }
+          ],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.features",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "RADAR-STEP-004",
+          "operation_id": "radar_station",
+          "method": "GET",
+          "path_template": "/radar/stations/{stationId}",
+          "path_params": {
+            "stationId": "{discovered_station_id}"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.properties.stationId",
+              "operator": "EQUALS",
+              "expected_value": "{discovered_station_id}"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "RADAR-STEP-005",
+          "operation_id": "radar_station_alarms",
+          "method": "GET",
+          "path_template": "/radar/stations/{stationId}/alarms",
+          "path_params": {
+            "stationId": "{discovered_station_id}"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/ld+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "RADAR-STEP-006",
+          "operation_id": "radar_profiler",
+          "method": "GET",
+          "path_template": "/radar/profilers/{stationId}",
+          "path_params": {
+            "stationId": "{discovered_station_id}"
+          },
+          "query_params": {
+            "interval": "P2DT12H"
+          },
+          "headers": {
+            "Accept": "application/geo+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.features",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "RADAR-STEP-007",
+          "operation_id": "radar_queue",
+          "method": "GET",
+          "path_template": "/radar/queues/{host}",
+          "path_params": {
+            "host": "{station_host}"
+          },
+          "query_params": {
+            "limit": 10
+          },
+          "headers": {
+            "Accept": "application/ld+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "RADAR-NEG-001",
+      "name": "Radar Parameter Boundary and Missing Entity Validation",
+      "description": "Verifies that invalid station codes, malformed time intervals, and missing servers produce appropriate 400 and 404 client error responses.",
+      "scenario_type": "BOUNDARY_NEGATIVE",
+      "tags": [
+        "radar",
+        "validation",
+        "boundary",
+        "negative"
+      ],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "RADAR-NEG-001",
+          "operation_id": "radar_server",
+          "method": "GET",
+          "path_template": "/radar/servers/{id}",
+          "path_params": {
+            "id": "non-existent-radar-server-9999"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/problem+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.status",
+              "operator": "EQUALS",
+              "expected_value": "404"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "RADAR-NEG-002",
+          "operation_id": "radar_station",
+          "method": "GET",
+          "path_template": "/radar/stations/{stationId}",
+          "path_params": {
+            "stationId": "INVALID_STATION_CODE"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/problem+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.status",
+              "operator": "EQUALS",
+              "expected_value": "404"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "RADAR-NEG-003",
+          "operation_id": "radar_station_alarms",
+          "method": "GET",
+          "path_template": "/radar/stations/{stationId}/alarms",
+          "path_params": {
+            "stationId": "NONEXISTENT_STATION"
+          },
+          "query_params": {},
+          "headers": {
+            "Accept": "application/problem+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.status",
+              "operator": "EQUALS",
+              "expected_value": "404"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "RADAR-NEG-004",
+          "operation_id": "radar_profiler",
+          "method": "GET",
+          "path_template": "/radar/profilers/{stationId}",
+          "path_params": {
+            "stationId": "KTLX"
+          },
+          "query_params": {
+            "interval": "INVALID_DURATION_STRING"
+          },
+          "headers": {
+            "Accept": "application/problem+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 400,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.status",
+              "operator": "EQUALS",
+              "expected_value": "400"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "RADAR-NEG-005",
+          "operation_id": "radar_queue",
+          "method": "GET",
+          "path_template": "/radar/queues/{host}",
+          "path_params": {
+            "host": "invalid-radar-host"
+          },
+          "query_params": {
+            "limit": -5
+          },
+          "headers": {
+            "Accept": "application/problem+json"
+          },
+          "request_body": null,
+          "captures": [],
+          "expected_status": 400,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.status",
+              "operator": "EQUALS",
+              "expected_value": "400"
+            }
+          ],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "AUX-001",
+      "name": "Auxiliary Office Headlines and Forecast Zones E2E Workflow",
+      "description": "Verifies retrieval of weather forecast offices, active office headlines, and traverses zone lists, type classifications, specific zone metadata, forecasts, observations, and monitoring stations.",
+      "scenario_type": "HAPPY_PATH_E2E",
+      "tags": [
+        "auxiliary",
+        "offices",
+        "zones",
+        "observations"
+      ],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "AUX-001-01",
+          "operation_id": "office",
+          "method": "GET",
+          "path_template": "/offices/{officeId}",
+          "path_params": {
+            "officeId": "LOT"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.id",
+              "operator": "EQUALS",
+              "expected_value": "LOT"
+            },
+            {
+              "target_expression": "$.name",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "AUX-001-02",
+          "operation_id": "office_headlines",
+          "method": "GET",
+          "path_template": "/offices/{officeId}/headlines",
+          "path_params": {
+            "officeId": "LOT"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "AUX-001-03",
+          "operation_id": "zone_list",
+          "method": "GET",
+          "path_template": "/zones",
+          "path_params": {},
+          "query_params": {
+            "type": [
+              "forecast"
+            ],
+            "limit": 5
+          },
+          "headers": {},
+          "request_body": null,
+          "captures": [
+            {
+              "variable_name": "discovered_zone_id",
+              "json_path": "$.@graph[0].id"
+            },
+            {
+              "variable_name": "discovered_zone_type",
+              "json_path": "$.@graph[0].type"
+            }
+          ],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "AUX-001-04",
+          "operation_id": "zone_list_type",
+          "method": "GET",
+          "path_template": "/zones/{type}",
+          "path_params": {
+            "type": "forecast"
+          },
+          "query_params": {
+            "limit": 5
+          },
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "AUX-001-05",
+          "operation_id": "zone",
+          "method": "GET",
+          "path_template": "/zones/{type}/{zoneId}",
+          "path_params": {
+            "type": "forecast",
+            "zoneId": "ILZ014"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.id",
+              "operator": "EQUALS",
+              "expected_value": "ILZ014"
+            },
+            {
+              "target_expression": "$.name",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "AUX-001-06",
+          "operation_id": "zone_forecast",
+          "method": "GET",
+          "path_template": "/zones/{type}/{zoneId}/forecast",
+          "path_params": {
+            "type": "forecast",
+            "zoneId": "ILZ014"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.periods",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "AUX-001-07",
+          "operation_id": "zone_obs",
+          "method": "GET",
+          "path_template": "/zones/forecast/{zoneId}/observations",
+          "path_params": {
+            "zoneId": "ILZ014"
+          },
+          "query_params": {
+            "limit": 5
+          },
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "AUX-001-08",
+          "operation_id": "zone_stations",
+          "method": "GET",
+          "path_template": "/zones/forecast/{zoneId}/stations",
+          "path_params": {
+            "zoneId": "ILZ014"
+          },
+          "query_params": {
+            "limit": 5
+          },
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "AUX-002",
+      "name": "Auxiliary Weather Reference, Gridpoint Forecasts, and Point Stations E2E",
+      "description": "Verifies meteorological glossary references, gridpoint forecast models (standard, hourly, stations), icon definitions, and point coordinate spatial lookups.",
+      "scenario_type": "HAPPY_PATH_E2E",
+      "tags": [
+        "auxiliary",
+        "glossary",
+        "gridpoints",
+        "points",
+        "icons"
+      ],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "AUX-002-01",
+          "operation_id": "glossary",
+          "method": "GET",
+          "path_template": "/glossary",
+          "path_params": {},
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.glossary",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "AUX-002-02",
+          "operation_id": "gridpoint",
+          "method": "GET",
+          "path_template": "/gridpoints/{wfo}/{x},{y}",
+          "path_params": {
+            "wfo": "TOP",
+            "x": 31,
+            "y": 80
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.gridId",
+              "operator": "EQUALS",
+              "expected_value": "TOP"
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "AUX-002-03",
+          "operation_id": "gridpoint_forecast",
+          "method": "GET",
+          "path_template": "/gridpoints/{wfo}/{x},{y}/forecast",
+          "path_params": {
+            "wfo": "TOP",
+            "x": 31,
+            "y": 80
+          },
+          "query_params": {
+            "units": "us"
+          },
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "AUX-002-04",
+          "operation_id": "gridpoint_forecast_hourly",
+          "method": "GET",
+          "path_template": "/gridpoints/{wfo}/{x},{y}/forecast/hourly",
+          "path_params": {
+            "wfo": "TOP",
+            "x": 31,
+            "y": 80
+          },
+          "query_params": {
+            "units": "us"
+          },
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "AUX-002-05",
+          "operation_id": "gridpoint_stations",
+          "method": "GET",
+          "path_template": "/gridpoints/{wfo}/{x},{y}/stations",
+          "path_params": {
+            "wfo": "TOP",
+            "x": 31,
+            "y": 80
+          },
+          "query_params": {
+            "limit": 10
+          },
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.@graph",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "AUX-002-06",
+          "operation_id": "icons_summary",
+          "method": "GET",
+          "path_template": "/icons",
+          "path_params": {},
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [
+            {
+              "target_expression": "$.icons",
+              "operator": "NOT_NULL",
+              "expected_value": null
+            }
+          ],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "AUX-002-07",
+          "operation_id": "point",
+          "method": "GET",
+          "path_template": "/points/{latitude},{longitude}",
+          "path_params": {
+            "latitude": 39.7456,
+            "longitude": -97.0892
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "AUX-002-08",
+          "operation_id": "point_stations",
+          "method": "GET",
+          "path_template": "/points/{latitude},{longitude}/stations",
+          "path_params": {
+            "latitude": 39.7456,
+            "longitude": -97.0892
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "AUX-003",
+      "name": "Auxiliary Resource Negative and Boundary Validation",
+      "description": "Validates appropriate 404 client error handling for invalid or non-existent weather icons, dual condition blends, satellite thumbnail areas, and office headlines.",
+      "scenario_type": "BOUNDARY_NEGATIVE",
+      "tags": [
+        "auxiliary",
+        "boundary",
+        "negative",
+        "icons",
+        "thumbnails"
+      ],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "AUX-003-01",
+          "operation_id": "icons",
+          "method": "GET",
+          "path_template": "/icons/{set}/{timeOfDay}/{first}",
+          "path_params": {
+            "set": "invalid_icon_set_xyz",
+            "timeOfDay": "day",
+            "first": "skc"
+          },
+          "query_params": {
+            "size": "medium"
+          },
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "AUX-003-02",
+          "operation_id": "iconsDualCondition",
+          "method": "GET",
+          "path_template": "/icons/{set}/{timeOfDay}/{first}/{second}",
+          "path_params": {
+            "set": "land",
+            "timeOfDay": "day",
+            "first": "nonexistent_condition_1",
+            "second": "nonexistent_condition_2"
+          },
+          "query_params": {
+            "size": "small",
+            "fontsize": 12
+          },
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "AUX-003-03",
+          "operation_id": "satellite_thumbnails",
+          "method": "GET",
+          "path_template": "/thumbnails/satellite/{area}",
+          "path_params": {
+            "area": "INVALID_AREA_CODE_999"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "AUX-003-04",
+          "operation_id": "office_headline",
+          "method": "GET",
+          "path_template": "/offices/{officeId}/headlines/{headlineId}",
+          "path_params": {
+            "officeId": "LOT",
+            "headlineId": "NONEXISTENT_HEADLINE_9999"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "global_security_check",
+      "name": "Security: Verify Endpoint Authentication and Headers",
+      "description": "Tests that requests with missing credentials or malformed security headers are rejected appropriately.",
+      "scenario_type": "SECURITY_PERMUTATION",
+      "tags": [],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "sec_step_unauthorized_probe",
+          "operation_id": "alerts_query",
+          "method": "GET",
+          "path_template": "/alerts",
+          "path_params": {},
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "global_idempotency_check",
+      "name": "Idempotency: Verify Repeated Safe Requests",
+      "description": "Executes identical requests to verify that safe operations produce identical, idempotent responses.",
+      "scenario_type": "IDEMPOTENCY",
+      "tags": [],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "idem_step_1",
+          "operation_id": "alerts_query",
+          "method": "GET",
+          "path_template": "/alerts",
+          "path_params": {},
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "idem_step_2",
+          "operation_id": "alerts_query",
+          "method": "GET",
+          "path_template": "/alerts",
+          "path_params": {},
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    }
+  ]
+}

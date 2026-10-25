@@ -1,0 +1,1890 @@
+openapi: 3.0.3
+info:
+  title: Cloud Run E-Commerce CRUD API
+  description: >
+    Stateful E-Commerce CRUD API hosted on Google Cloud Run for testing automated
+    OpenAPI integration test generation, topological DAG dependency sorting
+    (POST -> GET -> PUT -> PATCH -> DELETE), nested sub-resources, cross-resource
+    foreign-key workflows, JSONPath variable chaining, and boundary negative validation.
+  version: 1.1.0
+servers:
+  - url: https://oas-crud-test-server-253690372549.us-central1.run.app
+    description: Target CRUD API Server (Updated automatically by deploy.sh upon Cloud Run deployment)
+
+tags:
+  - name: products
+    description: Product catalog & inventory CRUD operations
+  - name: reviews
+    description: Customer product reviews sub-resource and rating aggregation
+  - name: customers
+    description: Customer profile, loyalty tiers, and customer order lookup
+  - name: promotions
+    description: Promotional discount codes and coupon rules
+  - name: orders
+    description: Customer order lifecycle, promotions application, and cancellation workflows
+
+components:
+  schemas:
+    ProductCreate:
+      type: object
+      required:
+        - name
+        - price
+        - category
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 120
+          example: Wireless Noise-Canceling Headphones
+        price:
+          type: number
+          format: float
+          minimum: 0.99
+          maximum: 100000.0
+          example: 199.99
+        category:
+          type: string
+          enum: [electronics, clothing, home, books]
+          example: electronics
+        in_stock:
+          type: boolean
+          default: true
+          example: true
+        stock_quantity:
+          type: integer
+          minimum: 0
+          maximum: 100000
+          default: 50
+          example: 50
+        sku:
+          type: string
+          minLength: 3
+          maxLength: 32
+          pattern: '^[A-Z0-9-]{3,32}$'
+          default: SKU-AUDIO-001
+          example: SKU-AUDIO-001
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["audio", "bluetooth", "tech"]
+
+    ProductPatch:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 2
+          maxLength: 120
+          example: Updated Wireless Headphones Pro
+        price:
+          type: number
+          format: float
+          minimum: 0.99
+          example: 179.99
+        category:
+          type: string
+          enum: [electronics, clothing, home, books]
+          example: electronics
+        in_stock:
+          type: boolean
+          example: true
+        stock_quantity:
+          type: integer
+          minimum: 0
+          maximum: 100000
+          example: 75
+        sku:
+          type: string
+          minLength: 3
+          maxLength: 32
+          example: SKU-AUDIO-PRO
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["audio", "sale"]
+
+    ProductRestockRequest:
+      type: object
+      required:
+        - quantity
+      properties:
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 5000
+          default: 25
+          example: 25
+        warehouse_code:
+          type: string
+          minLength: 2
+          maxLength: 32
+          default: WH-US-CENTRAL
+          example: WH-US-CENTRAL
+
+    Product:
+      type: object
+      required:
+        - id
+        - name
+        - price
+        - category
+        - in_stock
+        - stock_quantity
+        - rating_avg
+        - review_count
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+        name:
+          type: string
+          example: Wireless Noise-Canceling Headphones
+        price:
+          type: number
+          format: float
+          example: 199.99
+        category:
+          type: string
+          enum: [electronics, clothing, home, books]
+          example: electronics
+        in_stock:
+          type: boolean
+          example: true
+        stock_quantity:
+          type: integer
+          example: 50
+        sku:
+          type: string
+          example: SKU-AUDIO-001
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["audio", "bluetooth", "tech"]
+        rating_avg:
+          type: number
+          format: float
+          example: 4.8
+        review_count:
+          type: integer
+          example: 2
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-01-15T10:30:00Z
+        updated_at:
+          type: string
+          format: date-time
+          example: 2026-01-15T10:30:00Z
+
+    ProductListResponse:
+      type: object
+      required:
+        - items
+        - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Product'
+        total:
+          type: integer
+          example: 3
+
+    ShippingAddress:
+      type: object
+      required:
+        - street
+        - city
+        - state
+        - postal_code
+        - country
+      properties:
+        street:
+          type: string
+          minLength: 3
+          maxLength: 160
+          default: 742 Evergreen Terrace
+          example: 742 Evergreen Terrace
+        city:
+          type: string
+          minLength: 2
+          maxLength: 80
+          default: Springfield
+          example: Springfield
+        state:
+          type: string
+          minLength: 2
+          maxLength: 40
+          default: IL
+          example: IL
+        postal_code:
+          type: string
+          minLength: 3
+          maxLength: 20
+          default: "62704"
+          example: "62704"
+        country:
+          type: string
+          minLength: 2
+          maxLength: 3
+          default: US
+          example: US
+
+    CustomerCreate:
+      type: object
+      required:
+        - email
+        - full_name
+      properties:
+        email:
+          type: string
+          format: email
+          example: alex.shopper@example.com
+        full_name:
+          type: string
+          minLength: 2
+          maxLength: 120
+          example: Alex Shopper
+        tier:
+          type: string
+          enum: [STANDARD, SILVER, GOLD, PLATINUM]
+          default: GOLD
+          example: GOLD
+        loyalty_points:
+          type: integer
+          minimum: 0
+          maximum: 1000000
+          default: 250
+          example: 250
+        active:
+          type: boolean
+          default: true
+          example: true
+        shipping_address:
+          $ref: '#/components/schemas/ShippingAddress'
+
+    CustomerPatch:
+      type: object
+      properties:
+        full_name:
+          type: string
+          minLength: 2
+          maxLength: 120
+          example: Alex M. Shopper
+        tier:
+          type: string
+          enum: [STANDARD, SILVER, GOLD, PLATINUM]
+          example: PLATINUM
+        loyalty_points:
+          type: integer
+          minimum: 0
+          maximum: 1000000
+          example: 500
+        active:
+          type: boolean
+          example: true
+        shipping_address:
+          $ref: '#/components/schemas/ShippingAddress'
+
+    Customer:
+      type: object
+      required:
+        - id
+        - email
+        - full_name
+        - tier
+        - loyalty_points
+        - active
+        - shipping_address
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+        email:
+          type: string
+          format: email
+          example: alex.shopper@example.com
+        full_name:
+          type: string
+          example: Alex Shopper
+        tier:
+          type: string
+          enum: [STANDARD, SILVER, GOLD, PLATINUM]
+          example: GOLD
+        loyalty_points:
+          type: integer
+          example: 420
+        active:
+          type: boolean
+          example: true
+        shipping_address:
+          $ref: '#/components/schemas/ShippingAddress'
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-01-12T09:00:00Z
+        updated_at:
+          type: string
+          format: date-time
+          example: 2026-01-12T09:00:00Z
+
+    CustomerListResponse:
+      type: object
+      required:
+        - items
+        - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Customer'
+        total:
+          type: integer
+          example: 3
+
+    ReviewCreate:
+      type: object
+      required:
+        - reviewer_email
+        - rating
+        - title
+        - comment
+      properties:
+        reviewer_email:
+          type: string
+          format: email
+          example: alex.shopper@example.com
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          default: 5
+          example: 5
+        title:
+          type: string
+          minLength: 3
+          maxLength: 120
+          example: Exceptional sound quality and battery life
+        comment:
+          type: string
+          minLength: 5
+          maxLength: 1000
+          example: Used these headphones on a 10-hour flight and noise cancellation was spotless.
+        verified_purchase:
+          type: boolean
+          default: true
+          example: true
+
+    ReviewPatch:
+      type: object
+      properties:
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          example: 4
+        title:
+          type: string
+          minLength: 3
+          maxLength: 120
+          example: Updated review after 3 months of use
+        comment:
+          type: string
+          minLength: 5
+          maxLength: 1000
+          example: Still great sound quality, ear pads are holding up well.
+
+    Review:
+      type: object
+      required:
+        - id
+        - product_id
+        - reviewer_email
+        - rating
+        - title
+        - comment
+        - verified_purchase
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+        product_id:
+          type: string
+          format: uuid
+          example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+        reviewer_email:
+          type: string
+          format: email
+          example: alex.shopper@example.com
+        rating:
+          type: integer
+          example: 5
+        title:
+          type: string
+          example: Exceptional sound quality and battery life
+        comment:
+          type: string
+          example: Used these headphones on a 10-hour flight and noise cancellation was spotless.
+        verified_purchase:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-01-20T15:00:00Z
+        updated_at:
+          type: string
+          format: date-time
+          example: 2026-01-20T15:00:00Z
+
+    ReviewListResponse:
+      type: object
+      required:
+        - product_id
+        - items
+        - total
+        - average_rating
+      properties:
+        product_id:
+          type: string
+          format: uuid
+          example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Review'
+        total:
+          type: integer
+          example: 2
+        average_rating:
+          type: number
+          format: float
+          example: 4.5
+
+    PromotionCreate:
+      type: object
+      required:
+        - code
+        - discount_value
+      properties:
+        code:
+          type: string
+          minLength: 3
+          maxLength: 24
+          pattern: '^[A-Z0-9_-]{3,24}$'
+          example: SAVE20
+        description:
+          type: string
+          minLength: 3
+          maxLength: 240
+          default: Seasonal promotional discount
+          example: 20% off orders over $50
+        discount_type:
+          type: string
+          enum: [PERCENTAGE, FIXED_AMOUNT]
+          default: PERCENTAGE
+          example: PERCENTAGE
+        discount_value:
+          type: number
+          format: float
+          minimum: 1.0
+          maximum: 90.0
+          default: 20.0
+          example: 20.0
+        min_order_amount:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 100000.0
+          default: 25.0
+          example: 50.0
+        active:
+          type: boolean
+          default: true
+          example: true
+
+    PromotionPatch:
+      type: object
+      properties:
+        description:
+          type: string
+          minLength: 3
+          maxLength: 240
+          example: Updated seasonal promotional offer
+        discount_value:
+          type: number
+          format: float
+          minimum: 1.0
+          maximum: 90.0
+          example: 25.0
+        min_order_amount:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 100000.0
+          example: 40.0
+        active:
+          type: boolean
+          example: true
+
+    Promotion:
+      type: object
+      required:
+        - id
+        - code
+        - description
+        - discount_type
+        - discount_value
+        - min_order_amount
+        - active
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+        code:
+          type: string
+          example: SAVE20
+        description:
+          type: string
+          example: 20% off orders over $50
+        discount_type:
+          type: string
+          enum: [PERCENTAGE, FIXED_AMOUNT]
+          example: PERCENTAGE
+        discount_value:
+          type: number
+          format: float
+          example: 20.0
+        min_order_amount:
+          type: number
+          format: float
+          example: 50.0
+        active:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-01-10T08:00:00Z
+        updated_at:
+          type: string
+          format: date-time
+          example: 2026-01-10T08:00:00Z
+
+    PromotionListResponse:
+      type: object
+      required:
+        - items
+        - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Promotion'
+        total:
+          type: integer
+          example: 3
+
+    OrderCreate:
+      type: object
+      required:
+        - customer_email
+        - product_id
+        - quantity
+      properties:
+        customer_email:
+          type: string
+          format: email
+          example: alex.shopper@example.com
+        customer_id:
+          type: string
+          format: uuid
+          example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+        product_id:
+          type: string
+          format: uuid
+          example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 500
+          default: 2
+          example: 2
+        promo_code:
+          type: string
+          example: SAVE20
+        notes:
+          type: string
+          example: Leave package at the front porch
+
+    OrderPatch:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED]
+          example: CONFIRMED
+        quantity:
+          type: integer
+          minimum: 1
+          maximum: 500
+          example: 3
+        notes:
+          type: string
+          example: Expedited shipping requested
+
+    ApplyPromotionRequest:
+      type: object
+      required:
+        - promo_code
+      properties:
+        promo_code:
+          type: string
+          minLength: 3
+          maxLength: 24
+          default: SAVE20
+          example: SAVE20
+
+    OrderCancelRequest:
+      type: object
+      required:
+        - reason
+      properties:
+        reason:
+          type: string
+          minLength: 3
+          maxLength: 300
+          default: Customer requested cancellation before shipment
+          example: Customer requested cancellation before shipment
+        restock_items:
+          type: boolean
+          default: true
+          example: true
+
+    Order:
+      type: object
+      required:
+        - id
+        - customer_email
+        - product_id
+        - quantity
+        - status
+        - subtotal_price
+        - discount_amount
+        - total_price
+        - created_at
+        - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+        customer_email:
+          type: string
+          format: email
+          example: alex.shopper@example.com
+        customer_id:
+          type: string
+          format: uuid
+          example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+        product_id:
+          type: string
+          format: uuid
+          example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+        quantity:
+          type: integer
+          example: 2
+        status:
+          type: string
+          enum: [PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED]
+          example: PENDING
+        subtotal_price:
+          type: number
+          format: float
+          example: 399.98
+        discount_amount:
+          type: number
+          format: float
+          example: 79.99
+        promo_code:
+          type: string
+          nullable: true
+          example: SAVE20
+        total_price:
+          type: number
+          format: float
+          example: 319.99
+        notes:
+          type: string
+          example: Leave package at the front porch
+        created_at:
+          type: string
+          format: date-time
+          example: 2026-01-17T09:15:00Z
+        updated_at:
+          type: string
+          format: date-time
+          example: 2026-01-17T09:15:00Z
+
+    OrderListResponse:
+      type: object
+      required:
+        - items
+        - total
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Order'
+        total:
+          type: integer
+          example: 2
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+        - status_code
+      properties:
+        error:
+          type: string
+          example: BAD_REQUEST
+        message:
+          type: string
+          example: Validation error on request payload
+        status_code:
+          type: integer
+          example: 400
+
+paths:
+  /v1/products:
+    get:
+      tags: [products]
+      summary: List all products
+      description: Retrieve catalog products with optional category, stock availability, and price range filtering.
+      operationId: list_products
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [electronics, clothing, home, books]
+            example: electronics
+        - name: in_stock
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+            example: true
+        - name: min_price
+          in: query
+          required: false
+          schema:
+            type: number
+            format: float
+            minimum: 0.0
+            maximum: 100000.0
+            example: 10.0
+        - name: max_price
+          in: query
+          required: false
+          schema:
+            type: number
+            format: float
+            minimum: 0.0
+            maximum: 100000.0
+            example: 500.0
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+            example: 20
+      responses:
+        '200':
+          description: Products retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductListResponse'
+        '400':
+          description: Invalid query parameters or min_price > max_price
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags: [products]
+      summary: Create a new product
+      description: Creates a new product in the catalog and returns the created entity with a generated id.
+      operationId: create_product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreate'
+      responses:
+        '201':
+          description: Product created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid product payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/products/{id}:
+    get:
+      tags: [products]
+      summary: Get product by ID
+      description: Fetch details of a single product by its unique ID.
+      operationId: get_product_by_id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique product identifier
+          schema:
+            type: string
+            format: uuid
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+      responses:
+        '200':
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [products]
+      summary: Replace a product by ID
+      description: Completely replaces an existing product's fields by ID.
+      operationId: update_product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique product identifier to update
+          schema:
+            type: string
+            format: uuid
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreate'
+      responses:
+        '200':
+          description: Product updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      tags: [products]
+      summary: Partially update a product by ID
+      description: Updates specific fields of an existing product by ID.
+      operationId: patch_product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique product identifier to patch
+          schema:
+            type: string
+            format: uuid
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductPatch'
+      responses:
+        '200':
+          description: Product patched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid patch payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [products]
+      summary: Delete a product by ID
+      description: Deletes a product from the catalog by ID.
+      operationId: delete_product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique product identifier to delete
+          schema:
+            type: string
+            format: uuid
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+      responses:
+        '204':
+          description: Product deleted successfully
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/products/{id}/restock:
+    post:
+      tags: [products]
+      summary: Restock product inventory
+      description: Increments available stock_quantity for a product and marks it in_stock.
+      operationId: restock_product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique product identifier to restock
+          schema:
+            type: string
+            format: uuid
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductRestockRequest'
+      responses:
+        '200':
+          description: Product inventory restocked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '400':
+          description: Invalid restock quantity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/products/{id}/reviews:
+    get:
+      tags: [reviews]
+      summary: List reviews for a product
+      description: Returns all customer reviews and the calculated average rating for a specific product ID.
+      operationId: list_product_reviews
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique product identifier whose reviews to retrieve
+          schema:
+            type: string
+            format: uuid
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+        - name: min_rating
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 5
+            example: 4
+        - name: verified_only
+          in: query
+          required: false
+          schema:
+            type: boolean
+            example: true
+      responses:
+        '200':
+          description: Product reviews retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReviewListResponse'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags: [reviews]
+      summary: Create a product review
+      description: Submits a new customer review for a product and updates the product's average rating.
+      operationId: create_product_review
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique product identifier being reviewed
+          schema:
+            type: string
+            format: uuid
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewCreate'
+      responses:
+        '201':
+          description: Review created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          description: Invalid review payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/reviews/{id}:
+    get:
+      tags: [reviews]
+      summary: Get review by ID
+      description: Fetch details of a single product review by its unique ID.
+      operationId: get_review_by_id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique review identifier
+          schema:
+            type: string
+            format: uuid
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+      responses:
+        '200':
+          description: Review found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '404':
+          description: Review not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      tags: [reviews]
+      summary: Update a product review by ID
+      description: Partially updates a review's rating, title, or comment and recalculates the parent product rating.
+      operationId: patch_review
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique review identifier to patch
+          schema:
+            type: string
+            format: uuid
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReviewPatch'
+      responses:
+        '200':
+          description: Review updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
+        '400':
+          description: Invalid patch payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Review not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [reviews]
+      summary: Delete a review by ID
+      description: Deletes a product review by ID and recalculates the parent product rating.
+      operationId: delete_review
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique review identifier to delete
+          schema:
+            type: string
+            format: uuid
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+      responses:
+        '204':
+          description: Review deleted successfully
+        '404':
+          description: Review not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/customers:
+    get:
+      tags: [customers]
+      summary: List all customers
+      description: Retrieve customer profiles with optional loyalty tier, active status, and minimum loyalty points filtering.
+      operationId: list_customers
+      parameters:
+        - name: tier
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [STANDARD, SILVER, GOLD, PLATINUM]
+            example: GOLD
+        - name: active
+          in: query
+          required: false
+          schema:
+            type: boolean
+            example: true
+        - name: min_loyalty_points
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 1000000
+            example: 100
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+            example: 20
+      responses:
+        '200':
+          description: Customers retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerListResponse'
+        '400':
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags: [customers]
+      summary: Create a new customer
+      description: Creates a new customer profile with a nested shipping address and loyalty tier.
+      operationId: create_customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerCreate'
+      responses:
+        '201':
+          description: Customer created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Invalid customer payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/customers/{id}:
+    get:
+      tags: [customers]
+      summary: Get customer by ID
+      description: Fetch details of a customer profile by its unique ID.
+      operationId: get_customer_by_id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique customer identifier
+          schema:
+            type: string
+            format: uuid
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+      responses:
+        '200':
+          description: Customer found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [customers]
+      summary: Replace a customer by ID
+      description: Replaces an existing customer's profile and shipping address by ID.
+      operationId: update_customer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique customer identifier to update
+          schema:
+            type: string
+            format: uuid
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerCreate'
+      responses:
+        '200':
+          description: Customer updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Invalid customer payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      tags: [customers]
+      summary: Partially update a customer by ID
+      description: Updates specific fields of an existing customer profile (tier, loyalty_points, active, shipping_address).
+      operationId: patch_customer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique customer identifier to patch
+          schema:
+            type: string
+            format: uuid
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerPatch'
+      responses:
+        '200':
+          description: Customer patched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '400':
+          description: Invalid patch payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [customers]
+      summary: Delete a customer by ID
+      description: Deletes a customer profile by ID.
+      operationId: delete_customer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique customer identifier to delete
+          schema:
+            type: string
+            format: uuid
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+      responses:
+        '204':
+          description: Customer deleted successfully
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/customers/{id}/orders:
+    get:
+      tags: [customers]
+      summary: List orders for a specific customer
+      description: Returns all orders associated with a specific customer ID or customer email.
+      operationId: list_customer_orders
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique customer identifier whose orders to retrieve
+          schema:
+            type: string
+            format: uuid
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED]
+            example: CONFIRMED
+      responses:
+        '200':
+          description: Customer orders retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderListResponse'
+        '404':
+          description: Customer not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/promotions:
+    get:
+      tags: [promotions]
+      summary: List all promotions
+      description: Retrieve promotional discount codes with optional active status and discount_type filtering.
+      operationId: list_promotions
+      parameters:
+        - name: active
+          in: query
+          required: false
+          schema:
+            type: boolean
+            example: true
+        - name: discount_type
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [PERCENTAGE, FIXED_AMOUNT]
+            example: PERCENTAGE
+      responses:
+        '200':
+          description: Promotions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromotionListResponse'
+        '400':
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags: [promotions]
+      summary: Create a new promotion
+      description: Creates a new promotional discount code with percentage cap validation (<= 90%).
+      operationId: create_promotion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromotionCreate'
+      responses:
+        '201':
+          description: Promotion created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promotion'
+        '400':
+          description: Invalid promotion payload or percentage > 90%
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/promotions/{id}:
+    get:
+      tags: [promotions]
+      summary: Get promotion by ID or code
+      description: Fetch details of a promotion by its unique ID or uppercase promo code (e.g. SAVE20).
+      operationId: get_promotion_by_id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique promotion identifier or code
+          schema:
+            type: string
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+      responses:
+        '200':
+          description: Promotion found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promotion'
+        '404':
+          description: Promotion not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      tags: [promotions]
+      summary: Partially update a promotion by ID
+      description: Updates discount_value, min_order_amount, description, or active status of a promotion.
+      operationId: patch_promotion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique promotion identifier to patch
+          schema:
+            type: string
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromotionPatch'
+      responses:
+        '200':
+          description: Promotion patched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promotion'
+        '400':
+          description: Invalid patch payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Promotion not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [promotions]
+      summary: Delete a promotion by ID
+      description: Deletes a promotional discount code by ID.
+      operationId: delete_promotion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique promotion identifier to delete
+          schema:
+            type: string
+            example: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+      responses:
+        '204':
+          description: Promotion deleted successfully
+        '404':
+          description: Promotion not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/orders:
+    get:
+      tags: [orders]
+      summary: List all orders
+      description: Retrieve customer orders with optional status and customer_email filtering.
+      operationId: list_orders
+      parameters:
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [PENDING, CONFIRMED, SHIPPED, DELIVERED, CANCELLED]
+            example: CONFIRMED
+        - name: customer_email
+          in: query
+          required: false
+          schema:
+            type: string
+            format: email
+            example: alex.shopper@example.com
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+            example: 20
+      responses:
+        '200':
+          description: Orders retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderListResponse'
+        '400':
+          description: Invalid query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags: [orders]
+      summary: Create a new order
+      description: Submits a new customer order with optional promotion code and returns the created order with calculated totals.
+      operationId: create_order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreate'
+      responses:
+        '201':
+          description: Order created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Invalid order payload or promotion criteria not met
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/orders/{id}:
+    get:
+      tags: [orders]
+      summary: Get order by ID
+      description: Fetch details of a customer order by its unique ID.
+      operationId: get_order_by_id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique order identifier
+          schema:
+            type: string
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '200':
+          description: Order found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '404':
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [orders]
+      summary: Replace an order by ID
+      description: Replaces an existing order's details by ID.
+      operationId: update_order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique order identifier to update
+          schema:
+            type: string
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreate'
+      responses:
+        '200':
+          description: Order updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Invalid order payload
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    patch:
+      tags: [orders]
+      summary: Update order status or quantity
+      description: Partially updates an order's status, quantity, or notes by ID with state transition validation.
+      operationId: patch_order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique order identifier to patch
+          schema:
+            type: string
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderPatch'
+      responses:
+        '200':
+          description: Order patched successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Invalid patch payload or illegal status transition
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [orders]
+      summary: Delete an order by ID
+      description: Deletes a customer order by ID.
+      operationId: delete_order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique order identifier to delete
+          schema:
+            type: string
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        '204':
+          description: Order deleted successfully
+        '404':
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/orders/{id}/apply-promotion:
+    post:
+      tags: [orders]
+      summary: Apply a promotional discount code to an order
+      description: Applies a valid promotional code (such as SAVE20 or WELCOME10) to an existing order and recalculates discount_amount and total_price.
+      operationId: apply_order_promotion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique order identifier to apply promotion to
+          schema:
+            type: string
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplyPromotionRequest'
+      responses:
+        '200':
+          description: Promotion applied to order successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Order not eligible for promotion or minimum order amount not met
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Order or promotion code not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /v1/orders/{id}/cancel:
+    post:
+      tags: [orders]
+      summary: Cancel an order and optionally restock inventory
+      description: Transitions an order to CANCELLED status, records the cancellation reason, and optionally returns ordered units to product stock.
+      operationId: cancel_order
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique order identifier to cancel
+          schema:
+            type: string
+            format: uuid
+            example: 123e4567-e89b-12d3-a456-426614174000
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCancelRequest'
+      responses:
+        '200':
+          description: Order cancelled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Order cannot be cancelled (e.g. already DELIVERED)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Order not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'

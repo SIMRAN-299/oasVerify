@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OASVerify — Presentation Deck & Architecture Doc</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11.17.2/dist/mermaid.min.js"></script>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --slide-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --primary: #1a73e8;
+      --primary-soft: #e8f0fe;
+      --purple: #7e22ce;
+      --purple-soft: #f3e8ff;
+      --emerald: #059669;
+      --emerald-soft: #d1fae5;
+      --amber: #d97706;
+      --amber-soft: #fef3c7;
+      --danger: #dc2626;
+      --danger-soft: #fee2e2;
+      --border: #e2e8f0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      padding: 32px 20px 80px;
+      line-height: 1.5;
+    }
+
+    .toolbar {
+      max-width: 1200px;
+      margin: 0 auto 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #f8fafc;
+      background: rgba(255,255,255,0.07);
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    .toolbar h1 { font-size: 16px; font-weight: 700; letter-spacing: 0.02em; }
+    .toolbar button {
+      background: #1a73e8;
+      color: #fff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13.5px;
+    }
+    .toolbar button:hover { background: #1557b0; }
+
+    .slide {
+      max-width: 1200px;
+      min-height: 675px;
+      margin: 0 auto 40px;
+      background: var(--slide-bg);
+      border-radius: 18px;
+      padding: 48px 56px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      page-break-after: always;
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #1a73e8 0%, #9333ea 50%, #059669 100%);
+    }
+
+    .slide-header {
+      margin-bottom: 24px;
+    }
+    .eyebrow {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary);
+      background: var(--primary-soft);
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+    .slide-title {
+      font-size: 32px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .slide-subtitle {
+      font-size: 16.5px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: stretch; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; align-items: stretch; }
+    .grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; align-items: stretch; }
+
+    .card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+    }
+    .card--blue { background: #f4f8ff; border-color: #bfdbfe; }
+    .card--purple { background: #faf5ff; border-color: #e9d5ff; }
+    .card--emerald { background: #ecfdf5; border-color: #a7f3d0; }
+    .card--amber { background: #fffbeb; border-color: #fde68a; }
+    .card--danger { background: #fef2f2; border-color: #fecaca; }
+
+    .card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card p, .card li {
+      font-size: 14px;
+      color: #334155;
+      line-height: 1.55;
+    }
+    .card ul { padding-left: 18px; }
+    .card li + li { margin-top: 6px; }
+
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-top: 20px;
+    }
+    .kpi {
+      background: #0f172a;
+      color: #fff;
+      padding: 18px 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .kpi .num { font-size: 28px; font-weight: 800; color: #60a5fa; }
+    .kpi .lbl { font-size: 12.5px; color: #cbd5e1; margin-top: 4px; }
+
+    .diagram-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: auto;
+    }
+
+    .slide-footer {
+      margin-top: 28px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      font-size: 12.5px;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .speaker-notes {
+      margin-top: 16px;
+      background: #f1f5f9;
+      border-left: 4px solid var(--primary);
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 13px;
+      color: #334155;
+    }
+
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      background: rgba(15, 23, 42, 0.07);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12.5px;
+    }
+
+    @media print {
+      body { background: #fff; padding: 0; }
+      .toolbar, .speaker-notes { display: none; }
+      .slide { box-shadow: none; margin: 0; border-radius: 0; width: 100%; height: 100vh; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <h1>📊 OASVerify — Hackathon Presentation Deck (7 Slides + Diagrams)</h1>
+    <button onclick="window.print()">🖨️ Print / Save as PDF Slides</button>
+  </div>
+
+  <!-- ==================== SLIDE 1: TITLE & VALUE PROP ==================== -->
+  <section class="slide">
+    <div>
+      <div class="slide-header">
+        <span class="eyebrow">Autonomous AI-Powered API QA Agent</span>
+        <h2 class="slide-title" style="font-size: 40px;">OASVerify: Zero-Script, Self-Healing API Integration Testing</h2>
+        <p class="slide-subtitle">Transforming raw OpenAPI Specifications into stateful, self-healing, CI/CD-ready PyTest suites using a Hybrid Declarative Architecture.</p>
+      </div>
+
+      <div class="grid-2" style="margin-top: 28px;">
+        <div class="card card--danger">
+          <h3>❌ Why Traditional & Pure-LLM Testing Fails</h3>
+          <ul>
+            <li><strong>Manual Authoring Drag:</strong> Writing stateful E2E API tests takes days of engineering time per microservice.</li>
+            <li><strong>Pure LLM Codegen Hallucinates:</strong> Asking an LLM to write raw <code>pytest</code> directly produces broken imports, lost variable state across steps, and brittle assertions.</li>
+            <li><strong>Spec-to-Server Drift:</strong> Generated tests fail immediately on live servers due to undocumented regexes, enums, or 400 vs. 422 status differences.</li>
+          </ul>
+        </div>
+        <div class="card card--emerald">
+          <h3>✅ The OASVerify Breakthrough ("Rails + Brain")</h3>
+          <ul>
+            <li><strong>Deterministic Rails:</strong> Kahn's Topological DAG ordering, strict Pydantic contracts, AST regex synthesis, and a zero-dependency Python compiler.</li>
+            <li><strong>Gemini 3.8 Flash Brain:</strong> Domain-aware multi-step journey synthesis (Happy Path, Boundary Negative, Security, Idempotency) with <code>{{variable}}</code> chaining.</li>
+            <li><strong>Live Dual-Mode Self-Healing:</strong> Diagnoses live HTTP 4XX rejections, hot-patches tests without weakening happy-path assertions, and verifies via instant re-run.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="num">100%</div>
+          <div class="lbl">Endpoint Coverage Guaranteed</div>
+        </div>
+        <div class="kpi">
+          <div class="num">~4x Faster</div>
+          <div class="lbl">Parallel SSE Streaming Execution</div>
+        </div>
+        <div class="kpi">
+          <div class="num">Dual-Mode</div>
+          <div class="lbl">Gemini AI + Deterministic Fallback</div>
+        </div>
+        <div class="kpi">
+          <div class="num">1-Click</div>
+          <div class="lbl">GitHub Branch Push & Actions CI Report</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="speaker-notes">
+        <strong>🎤 Speaker Note:</strong> "Instead of asking an LLM to write raw Python test code that hallucinates and breaks on the first run, OASVerify separates deterministic execution rails from Gemini AI reasoning—giving teams 100% endpoint coverage, live self-healing, and standalone PyTest suites."
+      </div>
+      <div class="slide-footer">
+        <span>OASVerify — Architecture & Technical Presentation</span>
+        <span>Slide 1 / 6</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SLIDE 2: END-TO-END ARCHITECTURE ==================== -->
+  <section class="slide">
+    <div>
+      <div class="slide-header">
+        <span class="eyebrow">System Architecture</span>
+        <h2 class="slide-title">5-Stage Hybrid Declarative Pipeline</h2>
+        <p class="slide-subtitle">Segregating deterministic graph & schema guardrails (Blue/Green) from Gemini AI synthesis & self-healing (Purple/Amber).</p>
+      </div>
+
+      <div class="diagram-box">
+        <pre class="mermaid">
+flowchart LR
+    classDef rails fill:#eff6ff,stroke:#2563eb,stroke-width:2px,color:#1e3a8a
+    classDef brain fill:#faf5ff,stroke:#9333ea,stroke-width:2px,color:#581c87
+    classDef heal fill:#fffbeb,stroke:#d97706,stroke-width:2px,color:#78350f
+    classDef out fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#064e3b
+
+    subgraph S1["1. Spec Ingestion"]
+        A1["OpenAPI 3.0+ Spec\necommerce.yaml (14 paths / 32 ops)\nweather.yaml (58 paths / 58 ops)"]:::rails
+        A2["OASParser ($ref Dereference\n& Typed Schema Extraction)"]:::rails
+        A1 --> A2
+    end
+
+    subgraph S2["2. Topological DAG & AI Synthesis"]
+        B1["Kahn's Topological DAG\nPOST ➔ GET ➔ PUT/PATCH ➔ DELETE"]:::rails
+        B2["Domain Clustering &\nGemini 3.8 Flash Synthesis"]:::brain
+        B3["Post-Gen Guardrails\n• Auto-chain {{id}} captures\n• Backfill required fields\n• Move DELETEs to end"]:::rails
+        B1 --> B2 --> B3
+    end
+
+    subgraph S3["3. Codegen & Provenance"]
+        C1["Declarative suite.json\n+ test_suite.py Compiler"]:::out
+        C2["Quality Gate\n(Black / Flake8 / PyTest)"]:::rails
+        C3["Mermaid Visualizer\n& Provenance Evidence"]:::out
+        C1 --> C2
+        C1 --> C3
+    end
+
+    subgraph S4["4. Live Run & Self-Healing"]
+        D1["Async HTTPX Runner\n(4x Parallel SSE Stream)"]:::rails
+        D2["TestValidatorAgent\n(Gemini + RFC 7807 Analyzer)"]:::heal
+        D1 <-->|"Heal & Re-Run"| D2
+    end
+
+    subgraph S5["5. CI/CD & GitHub Sync"]
+        E1["Push to GitHub Branch\n+ GitHub Actions Report"]:::out
+    end
+
+    A2 --> B1
+    B3 --> C1
+    C2 --> D1
+    D1 --> E1
+        </pre>
+      </div>
+
+      <div class="grid-5" style="margin-top: 18px;">
+        <div class="card card--blue" style="padding:14px;">
+          <h3 style="font-size:14px;">1. OASParser</h3>
+          <p style="font-size:12.5px;">Flattens nested <code>$ref</code> pointers and extracts enums, regexes, & auth schemes.</p>
+        </div>
+        <div class="card card--purple" style="padding:14px;">
+          <h3 style="font-size:14px;">2. DAG + Gemini</h3>
+          <p style="font-size:12.5px;">Kahn's algorithm orders CRUD dependencies; Gemini synthesizes multi-step journeys.</p>
+        </div>
+        <div class="card card--emerald" style="padding:14px;">
+          <h3 style="font-size:14px;">3. Pure Codegen</h3>
+          <p style="font-size:12.5px;">Compiles <code>suite.json</code> into lint-verified, standalone <code>@pytest.mark.asyncio</code> code.</p>
+        </div>
+        <div class="card card--amber" style="padding:14px;">
+          <h3 style="font-size:14px;">4. Self-Healing</h3>
+          <p style="font-size:12.5px;">Repairs 4XX parameter/body drift live and re-runs without weakening happy paths.</p>
+        </div>
+        <div class="card" style="padding:14px;">
+          <h3 style="font-size:14px;">5. GitHub CI/CD</h3>
+          <p style="font-size:12.5px;">Pushes timestamped suites to GitHub and triggers automated JUnit/HTML reports.</p>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="speaker-notes">
+        <strong>🎤 Speaker Note:</strong> "Walk left-to-right: We parse the OpenAPI spec, sort resource dependencies with Kahn's algorithm, synthesize stateful journeys with Gemini, enforce deterministic guardrails, execute with live self-healing, and push directly to GitHub Actions."
+      </div>
+      <div class="slide-footer">
+        <span>OASVerify — Hybrid Declarative Architecture</span>
+        <span>Slide 2 / 6</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SLIDE 3: DAG & STATEFUL VARIABLE CHAINING ==================== -->
+  <section class="slide">
+    <div>
+      <div class="slide-header">
+        <span class="eyebrow">Deep Dive #1: Intelligent Planning</span>
+        <h2 class="slide-title">Topological DAG Ordering & Stateful Variable Chaining</h2>
+        <p class="slide-subtitle">How OASVerify solves multi-step foreign-key dependencies across API endpoints.</p>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div class="card card--blue" style="margin-bottom: 18px;">
+            <h3>🕸️ Kahn's Topological Dependency Graph (<code>graph.py</code>)</h3>
+            <ul>
+              <li>APIs have strict state dependencies: you cannot call <code>GET /products/{id}</code> or <code>POST /orders</code> before creating the prerequisite resources.</li>
+              <li><strong>DependencyGraph</strong> analyzes path hierarchies and HTTP verbs to construct a Directed Acyclic Graph (DAG):
+                <br/><code>POST (Producer) ➔ GET (Reader) ➔ PUT/PATCH (Mutator) ➔ DELETE (Destructor)</code></li>
+              <li>Guarantees that destructive <code>DELETE</code> or cancel steps are always placed at the end of a journey.</li>
+            </ul>
+          </div>
+          <div class="card card--purple">
+            <h3>🛡️ Deterministic Post-Generation Guardrails</h3>
+            <ul>
+              <li><strong>Auto-Chaining Captures:</strong> Automatically injects <code>VariableCapture(variable_name="product_id", json_path="$.id")</code> on creation steps and wires <code>{{product_id}}</code> into downstream paths and bodies.</li>
+              <li><strong>Regex AST Sampler (<code>sample_from_regex</code>):</strong> Parses regular expression ASTs via Python's <code>sre_parse</code> to synthesize valid strings for strict parameter patterns (e.g. <code>^[A-Z]{2}Z\d{3}$</code> ➔ <code>AKZ101</code>).</li>
+              <li><strong>100% Coverage Guarantee:</strong> Any endpoint not covered by Gemini is automatically synthesized by the deterministic fallback builder.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="diagram-box" style="flex-direction: column;">
+          <div style="font-weight: 700; font-size: 14px; margin-bottom: 10px; color: #1e3a8a;">Example: E-Commerce Checkout Journey Data-Flow DAG</div>
+          <pre class="mermaid">
+flowchart TD
+    S1["Step 1: POST /customers\nExpects 201 Created\n📤 Captures: customer_id = $.id"]
+    S2["Step 2: POST /products\nExpects 201 Created\n📤 Captures: product_id = $.id"]
+    S3["Step 3: POST /carts\nBody: {customer_id: '{{customer_id}}'}\n📤 Captures: cart_id = $.id"]
+    S4["Step 4: POST /carts/{{cart_id}}/items\nBody: {product_id: '{{product_id}}', quantity: 2}\nExpects 201 Created"]
+    S5["Step 5: POST /orders\nBody: {cart_id: '{{cart_id}}'}\n📤 Captures: order_id = $.id"]
+    S6["Step 6: DELETE /products/{{product_id}}\nTeardown at end of lifecycle"]
+
+    S1 -->|"{{customer_id}}"| S3
+    S2 -->|"{{product_id}}"| S4
+    S3 -->|"{{cart_id}}"| S4
+    S4 -->|"{{cart_id}}"| S5
+    S5 --> S6
+          </pre>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="speaker-notes">
+        <strong>🎤 Speaker Note:</strong> "Notice on the right how a real e-commerce checkout requires 5 chained steps: creating a customer, creating a product, opening a cart, adding the item, and placing the order. Kahn's DAG + Gemini + our deterministic linker wire these JSONPath captures automatically."
+      </div>
+      <div class="slide-footer">
+        <span>OASVerify — Topological DAG & Stateful Chaining</span>
+        <span>Slide 3 / 6</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SLIDE 4: AUTONOMOUS SELF-HEALING ==================== -->
+  <section class="slide">
+    <div>
+      <div class="slide-header">
+        <span class="eyebrow">Deep Dive #2: Live Resilience</span>
+        <h2 class="slide-title">Autonomous Dual-Mode Self-Healing (<code>TestValidatorAgent</code>)</h2>
+        <p class="slide-subtitle">Repairing spec-to-server input drift in real time—without ever masking real backend bugs.</p>
+      </div>
+
+      <div class="diagram-box" style="margin-bottom: 20px;">
+        <pre class="mermaid">
+flowchart LR
+    classDef fail fill:#fef2f2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d
+    classDef ai fill:#faf5ff,stroke:#9333ea,stroke-width:2px,color:#581c87
+    classDef guard fill:#fffbeb,stroke:#d97706,stroke-width:2px,color:#78350f
+    classDef pass fill:#ecfdf5,stroke:#059669,stroke-width:2px,color:#064e3b
+
+    A["1. Step Fails Against Live API\n(e.g. HTTP 400 / 404 / 422)"]:::fail
+    B{"2. Classify Failure"}
+    C["🚨 Unhealable Backend / Auth Fault\n• HTTP 500/502/503 Server Error\n• HTTP 401/403 Auth Failure\n➔ Do NOT heal; report root cause"]:::fail
+    D["🧠 Dual-Mode Diagnosis\n• Mode A: Gemini 3.8 Flash\n• Mode B: Deterministic RFC 7807\n  & FastAPI Error Parser"]:::ai
+    E["🛡️ Strict Safety Guardrail\n• Repairs path/query/body inputs\n• BLOCKS weakening 2XX ➔ 4XX/5XX\n  on HAPPY_PATH_E2E tests"]:::guard
+    F["🔄 Hot-Patch & Live Re-Run\n• Updates suite.json & test_suite.py\n• Re-executes journey immediately\n• Renders '🤖 HEALED' badge + diff"]:::pass
+
+    A --> B
+    B -->|"5XX or 401/403"| C
+    B -->|"4XX Validation / Parameter Drift"| D
+    D --> E --> F
+        </pre>
+      </div>
+
+      <div class="grid-3">
+        <div class="card card--amber">
+          <h3>🔧 What Self-Healing Fixes</h3>
+          <ul>
+            <li><strong>Regex & Format Drift:</strong> Server rejects <code>zoneId="sample"</code> with regex error ➔ heals to <code>"AKZ101"</code>.</li>
+            <li><strong>Missing Required Fields:</strong> FastAPI returns 422 <code>loc: ["body", "email"]</code> ➔ synthesizes valid field.</li>
+            <li><strong>Negative Status Alignment:</strong> Negative test expects <code>400</code>, server returns <code>422</code> ➔ aligns to <code>422</code>.</li>
+          </ul>
+        </div>
+        <div class="card card--danger">
+          <h3>🚫 How We Prevent "Cheating"</h3>
+          <ul>
+            <li><strong>Happy-Path Protection:</strong> <code>apply_test_fix_to_step()</code> strictly forbids changing a <code>200/201</code> expectation to <code>4XX</code> or <code>5XX</code> on Happy Path tests.</li>
+            <li><strong>5XX Crash Preservation:</strong> Never hides a <code>500 Internal Server Error</code>—surfaces it as a real API defect.</li>
+          </ul>
+        </div>
+        <div class="card card--purple">
+          <h3>⚡ Dual-Mode Reliability</h3>
+          <ul>
+            <li><strong>Primary:</strong> Gemini 3.8 Flash inspects the OAS schema, captured context, and HTTP error body.</li>
+            <li><strong>Fallback:</strong> Deterministic RFC 7807 <code>parameterErrors</code> & regex AST analyzer works 100% offline.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="speaker-notes">
+        <strong>🎤 Speaker Note:</strong> "A key question judges ask is: 'Does self-healing hide real bugs?' No! Our safety guardrail never weakens a Happy Path 2XX assertion into a 4XX/5XX, and never touches 500 server crashes. It only repairs test input drift and immediately re-runs against the live API to prove the fix."
+      </div>
+      <div class="slide-footer">
+        <span>OASVerify — Autonomous Self-Healing Engine</span>
+        <span>Slide 4 / 6</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SLIDE 5: PROVENANCE VISUALIZER & GITHUB CI/CD ==================== -->
+  <section class="slide">
+    <div>
+      <div class="slide-header">
+        <span class="eyebrow">Deep Dive #3: Auditability & DevOps</span>
+        <h2 class="slide-title">Provenance Visualizer & Automated GitHub CI/CD</h2>
+        <p class="slide-subtitle">Full transparency into every AI decision, paired with 1-click GitHub branch deployment and automated reporting.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card card--blue">
+          <h3>🔍 "Visualize Tests" Provenance Page (<code>ui_visualizer.py</code>)</h3>
+          <p style="margin-bottom: 12px;">Engineers never have to trust a "black box." For every generated journey, OASVerify renders:</p>
+          <ul>
+            <li><strong>Interactive Mermaid Flowchart:</strong> Shows exact step execution order and <code>{{variable}}</code> producer-to-consumer data-flow edges.</li>
+            <li><strong>Source Attribution Badges:</strong> Clearly labels whether a journey was <em>"Designed by Gemini"</em> vs. <em>"Deterministic Baseline"</em>.</li>
+            <li><strong>Guardrail Audit Log (<code>provenance.py</code>):</strong> Lists every deterministic intervention (e.g., <code>body_backfilled</code>, <code>path_chained</code>, <code>captures_added</code>, <code>steps_reordered</code>).</li>
+            <li><strong>Self-Healing Diffs:</strong> Displays field-level strikethrough diffs (<code>before ➔ after</code>) and reasoning for every repaired step.</li>
+          </ul>
+        </div>
+
+        <div class="card card--emerald">
+          <h3>🐙 GitHub Sync & Automated GitHub Actions Pipeline</h3>
+          <p style="margin-bottom: 12px;">Seamless transition from interactive exploration to enterprise CI/CD regression suites:</p>
+          <ul>
+            <li><strong>Selective Export & Push:</strong> Download standalone <code>test_suite.py</code> or push passing tests directly to GitHub via REST API or SSH.</li>
+            <li><strong>Collision-Free Timestamped Folders:</strong> Organizes suites under <code>tests/oas-tests-agent/{YYYY-MM-DD_HH-MM-SS}/test_suite.py</code>.</li>
+            <li><strong>Automated GitHub Actions Trigger (<code>run-oas-tests.yaml</code>):</strong>
+              <ul>
+                <li>Triggers automatically on push to the <code>test</code> branch under <code>tests/oas-tests-agent/**</code>.</li>
+                <li>Executes <code>pytest</code> and publishes a rich <strong>Markdown Job Summary Table</strong> + downloadable <strong>HTML & JUnit XML reports</strong>.</li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="diagram-box" style="margin-top: 20px;">
+        <pre class="mermaid">
+flowchart LR
+    UI["💻 Execution Dashboard\nClick 'Push to GitHub'"] --> DEPLOY["🐙 GitHubDeployer\nCommits tests/oas-tests-agent/{timestamp}/test_suite.py\nto 'test' branch"]
+    DEPLOY --> GHA["⚙️ GitHub Actions (run-oas-tests.yaml)\nDetects pushed test_suite.py via regex\nRuns pytest + pytest-html"]
+    GHA --> REP["📊 Automated CI Outputs\n1. GitHub Job Summary Table\n2. Self-Contained report.html\n3. JUnit XML Artifact"]
+        </pre>
+      </div>
+    </div>
+
+    <div>
+      <div class="speaker-notes">
+        <strong>🎤 Speaker Note:</strong> "Once journeys are verified and healed in the dashboard, one click pushes the standalone PyTest file to our 'test' branch on GitHub, which immediately triggers our GitHub Actions workflow to run the suite in CI and publish a full pass/fail breakdown."
+      </div>
+      <div class="slide-footer">
+        <span>OASVerify — Provenance & CI/CD Integration</span>
+        <span>Slide 5 / 6</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== SLIDE 6: BENCHMARKS & DEMO FLOW ==================== -->
+  <section class="slide">
+    <div>
+      <div class="slide-header">
+        <span class="eyebrow">Real-World Validation & Live Demo</span>
+        <h2 class="slide-title">Tested Specifications & Live Demo Flow</h2>
+        <p class="slide-subtitle">Validated across stateful CRUD microservices and complex real-world public APIs.</p>
+      </div>
+
+      <div class="grid-2" style="margin-bottom: 24px;">
+        <div class="card card--blue">
+          <h3>🛒 Spec 1: E-Commerce CRUD API (<code>ecommerce.yaml</code>)</h3>
+          <ul>
+            <li><strong>Scale:</strong> <strong>14 unique URL paths</strong> exposing <strong>32 HTTP operations</strong> (<code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>PATCH</code>, <code>DELETE</code>).</li>
+            <li><strong>Domains:</strong> Products, Reviews, Customers, Carts, Coupons, Orders, Health.</li>
+            <li><strong>What it showcases:</strong> Deep multi-step stateful CRUD chaining (creating customer + product + cart + order + cancellation) & 48 generated test scenarios.</li>
+          </ul>
+        </div>
+        <div class="card card--purple">
+          <h3>🌦️ Spec 2: National Weather Service API (<code>weather.yaml</code>)</h3>
+          <ul>
+            <li><strong>Scale:</strong> <strong>58 unique URL paths</strong> exposing <strong>58 HTTP operations</strong>.</li>
+            <li><strong>Complexity:</strong> Strict regex patterns (WFO codes, forecast zones <code>^[A-Z]{2}Z\d{3}$</code>), GeoJSON <code>@graph</code> / <code>features</code> collections, and RFC 7807 <code>parameterErrors</code>.</li>
+            <li><strong>What it showcases:</strong> Regex AST synthesis and live Self-Healing of complex parameter constraints.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card card--emerald">
+        <h3>🎬 4-Step Live Presentation Demo Script</h3>
+        <div class="grid-2" style="margin-top: 10px; gap: 16px;">
+          <div>
+            <p><strong>1. Generate (0:00–0:30):</strong> Select <code>ecommerce.yaml</code> (or <code>weather.yaml</code>) and click <strong>Generate Test Suite</strong>. Show how OASVerify parses 32 operations and synthesizes 48 multi-step scenarios.</p>
+            <p style="margin-top: 8px;"><strong>2. Visualize Provenance (0:30–1:00):</strong> Open <strong>Visualize Tests</strong> to show the Mermaid data-flow DAGs, variable captures, and Gemini vs. Guardrail evidence panels.</p>
+          </div>
+          <div>
+            <p><strong>3. Execute & Self-Heal Live (1:00–1:45):</strong> Toggle <strong>Enable LLM Self-Healing</strong> and click <strong>Run All Journeys</strong>. Watch 4x parallel SSE progress bars and live <code>🤖 HEALED</code> badges as failing steps repair and re-run.</p>
+            <p style="margin-top: 8px;"><strong>4. Push to GitHub & CI Report (1:45–2:15):</strong> Click <strong>Push to GitHub</strong> (branch <code>test</code>) and show the automated GitHub Actions test report table.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="speaker-notes">
+        <strong>🎤 Speaker Note:</strong> "We validated OASVerify on both a 32-operation stateful E-Commerce CRUD API and the 58-endpoint National Weather Service spec—proving both deep stateful CRUD chaining and real-world self-healing."
+      </div>
+      <div class="slide-footer">
+        <span>OASVerify — Benchmarks & Live Demo</span>
+        <span>Slide 6 / 6</span>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'neutral',
+      securityLevel: 'loose',
+      flowchart: { htmlLabels: true, curve: 'basis', padding: 12 }
+    });
+  </script>
+</body>
+</html>

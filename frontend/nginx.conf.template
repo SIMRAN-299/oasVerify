@@ -1,0 +1,44 @@
+server {
+    listen ${PORT};
+    server_name _;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    client_max_body_size 25m;
+
+    # Immutable Vite hashed assets
+    location /assets/ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+        try_files $uri =404;
+    }
+
+    # Reverse-proxy API & SSE routes to the Backend Cloud Run service
+    location ~ ^/(api|upload|status|sample_oas|github|download_tests|download_suite|stream_scenario|stream_suite|execute_single|docs|openapi\.json|healthz)(/|$) {
+        proxy_pass ${BACKEND_URL};
+        proxy_http_version 1.1;
+        proxy_ssl_server_name on;
+        proxy_set_header Host $proxy_host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Forward Cloud Run IAP identity headers to backend
+        proxy_set_header X-Goog-Authenticated-User-Email $http_x_goog_authenticated_user_email;
+        proxy_set_header X-Goog-Authenticated-User-Id $http_x_goog_authenticated_user_id;
+        proxy_set_header X-Goog-Iap-Jwt-Assertion $http_x_goog_iap_jwt_assertion;
+
+        # Disable buffering for real-time SSE streaming (/stream_suite & /stream_scenario)
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 900s;
+        proxy_send_timeout 900s;
+    }
+
+    # React SPA fallback for client-side routes (/execution_dashboard/*, /visualize/*, /tests/*, /guide)
+    location / {
+        add_header Cache-Control "no-cache";
+        try_files $uri $uri/ /index.html;
+    }
+}

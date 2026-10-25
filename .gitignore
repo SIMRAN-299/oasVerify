@@ -1,0 +1,15 @@
+venv/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+session_uploads/
+uploaded_oas/
+session_workspaces/
+
+# Ignore generated test sessions
+session_workspaces/
+*.db
+frontend/node_modules/
+frontend/dist/
+

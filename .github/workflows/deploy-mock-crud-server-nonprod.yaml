@@ -1,0 +1,60 @@
+name: Deploy Mock CRUD Server to Non-Prod
+
+on:
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: 'helloayush-prj-1'
+  PROJECT_NUMBER: '253690372549'
+
+  # Cloud Run variables
+  GOOGLE_CLOUD_PROJECT: 'helloayush-prj-1'
+  GOOGLE_CLOUD_LOCATION: 'us-central1'
+  CLOUDRUN_SERVICE_NAME: 'ecommerce-mock-crud-server'
+
+jobs:
+  deploy-mock-crud-server-nonprod:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    environment: non-prod
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v4
+
+      - name: 'Google Auth'
+        id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: 'projects/253690372549/locations/global/workloadIdentityPools/github-actions-pool/providers/github-provider'
+          service_account: 'nonprod-github-action-deployer@helloayush-prj-1.iam.gserviceaccount.com'
+
+      - name: 'Deploy Mock CRUD Server to Cloud Run'
+        run: |
+          echo "Starting deployment of Mock CRUD Server ($CLOUDRUN_SERVICE_NAME) to Non-Prod..."
+
+          gcloud run deploy $CLOUDRUN_SERVICE_NAME \
+            --source ./mock_crud_server \
+            --project $PROJECT_ID \
+            --region $GOOGLE_CLOUD_LOCATION \
+            --allow-unauthenticated \
+            --max-instances 1 \
+            --concurrency 80 \
+            --memory 512Mi
+
+          gcloud run services update-traffic $CLOUDRUN_SERVICE_NAME \
+            --to-latest \
+            --region $GOOGLE_CLOUD_LOCATION \
+            --project $PROJECT_ID
+
+          SERVICE_URL=$(gcloud run services describe $CLOUDRUN_SERVICE_NAME \
+            --project $PROJECT_ID \
+            --region $GOOGLE_CLOUD_LOCATION \
+            --format 'value(status.url)')
+
+          echo "Deployment Success verified. Service URL: $SERVICE_URL"

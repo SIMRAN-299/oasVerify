@@ -1,0 +1,1176 @@
+{
+  "suite_id": "suite_2b9e756f-a80d-40f1-bfa1-0491e800cbd5",
+  "target_base_url": "https://35-244-241-176.nip.io/weather_oas",
+  "scenarios": [
+    {
+      "scenario_id": "fallback_products",
+      "name": "Baseline Flow: Products",
+      "description": "Deterministic baseline workflow covering 9 endpoints in products.",
+      "scenario_type": "HAPPY_PATH_E2E",
+      "tags": [],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "fallback_products_step_1_products_query",
+          "operation_id": "products_query",
+          "method": "GET",
+          "path_template": "/products",
+          "path_params": {},
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_products_step_2_product_locations",
+          "operation_id": "product_locations",
+          "method": "GET",
+          "path_template": "/products/locations",
+          "path_params": {},
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_products_step_3_product_types",
+          "operation_id": "product_types",
+          "method": "GET",
+          "path_template": "/products/types",
+          "path_params": {},
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_products_step_4_product",
+          "operation_id": "product",
+          "method": "GET",
+          "path_template": "/products/{productId}",
+          "path_params": {
+            "productId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_products_step_5_products_type",
+          "operation_id": "products_type",
+          "method": "GET",
+          "path_template": "/products/types/{typeId}",
+          "path_params": {
+            "typeId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_products_step_6_products_type_locations",
+          "operation_id": "products_type_locations",
+          "method": "GET",
+          "path_template": "/products/types/{typeId}/locations",
+          "path_params": {
+            "typeId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_products_step_7_location_products",
+          "operation_id": "location_products",
+          "method": "GET",
+          "path_template": "/products/locations/{locationId}/types",
+          "path_params": {
+            "locationId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_products_step_8_products_type_location",
+          "operation_id": "products_type_location",
+          "method": "GET",
+          "path_template": "/products/types/{typeId}/locations/{locationId}",
+          "path_params": {
+            "typeId": "1",
+            "locationId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_products_step_9_latest_product_type_location",
+          "operation_id": "latest_product_type_location",
+          "method": "GET",
+          "path_template": "/products/types/{typeId}/locations/{locationId}/latest",
+          "path_params": {
+            "typeId": "1",
+            "locationId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "neg_products",
+      "name": "Boundary Negative: Products Invalid Parameters",
+      "description": "Exercises boundary rejection with non-existent identifiers in products.",
+      "scenario_type": "BOUNDARY_NEGATIVE",
+      "tags": [],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "neg_products_step_product",
+          "operation_id": "product",
+          "method": "GET",
+          "path_template": "/products/{productId}",
+          "path_params": {
+            "productId": "invalid_nonexistent_id_999999"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "fallback_alerts",
+      "name": "Baseline Flow: Alerts",
+      "description": "Deterministic baseline workflow covering 8 endpoints in alerts.",
+      "scenario_type": "HAPPY_PATH_E2E",
+      "tags": [],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "fallback_alerts_step_1_alerts_query",
+          "operation_id": "alerts_query",
+          "method": "GET",
+          "path_template": "/alerts",
+          "path_params": {},
+          "query_params": {
+            "limit": 500
+          },
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_alerts_step_2_alerts_active",
+          "operation_id": "alerts_active",
+          "method": "GET",
+          "path_template": "/alerts/active",
+          "path_params": {},
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_alerts_step_3_alerts_active_count",
+          "operation_id": "alerts_active_count",
+          "method": "GET",
+          "path_template": "/alerts/active/count",
+          "path_params": {},
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_alerts_step_4_alerts_active_zone",
+          "operation_id": "alerts_active_zone",
+          "method": "GET",
+          "path_template": "/alerts/active/zone/{zoneId}",
+          "path_params": {
+            "zoneId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_alerts_step_5_alerts_active_area",
+          "operation_id": "alerts_active_area",
+          "method": "GET",
+          "path_template": "/alerts/active/area/{area}",
+          "path_params": {
+            "area": "sample_area"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_alerts_step_6_alerts_active_region",
+          "operation_id": "alerts_active_region",
+          "method": "GET",
+          "path_template": "/alerts/active/region/{region}",
+          "path_params": {
+            "region": "sample_region"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_alerts_step_7_alerts_types",
+          "operation_id": "alerts_types",
+          "method": "GET",
+          "path_template": "/alerts/types",
+          "path_params": {},
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_alerts_step_8_alerts_single",
+          "operation_id": "alerts_single",
+          "method": "GET",
+          "path_template": "/alerts/{id}",
+          "path_params": {
+            "id": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "neg_alerts",
+      "name": "Boundary Negative: Alerts Invalid Parameters",
+      "description": "Exercises boundary rejection with non-existent identifiers in alerts.",
+      "scenario_type": "BOUNDARY_NEGATIVE",
+      "tags": [],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "neg_alerts_step_alerts_active_zone",
+          "operation_id": "alerts_active_zone",
+          "method": "GET",
+          "path_template": "/alerts/active/zone/{zoneId}",
+          "path_params": {
+            "zoneId": "invalid_nonexistent_id_999999"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "fallback_aviation",
+      "name": "Baseline Flow: Aviation",
+      "description": "Deterministic baseline workflow covering 7 endpoints in aviation.",
+      "scenario_type": "HAPPY_PATH_E2E",
+      "tags": [],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "fallback_aviation_step_1_cwsu",
+          "operation_id": "cwsu",
+          "method": "GET",
+          "path_template": "/aviation/cwsus/{cwsuId}",
+          "path_params": {
+            "cwsuId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_aviation_step_2_cwas",
+          "operation_id": "cwas",
+          "method": "GET",
+          "path_template": "/aviation/cwsus/{cwsuId}/cwas",
+          "path_params": {
+            "cwsuId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_aviation_step_3_cwa",
+          "operation_id": "cwa",
+          "method": "GET",
+          "path_template": "/aviation/cwsus/{cwsuId}/cwas/{date}/{sequence}",
+          "path_params": {
+            "cwsuId": "1",
+            "date": "2026-01-01",
+            "sequence": 1
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_aviation_step_4_sigmetQuery",
+          "operation_id": "sigmetQuery",
+          "method": "GET",
+          "path_template": "/aviation/sigmets",
+          "path_params": {},
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_aviation_step_5_sigmetsByATSU",
+          "operation_id": "sigmetsByATSU",
+          "method": "GET",
+          "path_template": "/aviation/sigmets/{atsu}",
+          "path_params": {
+            "atsu": "sample_atsu"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_aviation_step_6_sigmetsByATSUByDate",
+          "operation_id": "sigmetsByATSUByDate",
+          "method": "GET",
+          "path_template": "/aviation/sigmets/{atsu}/{date}",
+          "path_params": {
+            "atsu": "sample_atsu",
+            "date": "2026-01-01"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_aviation_step_7_sigmet",
+          "operation_id": "sigmet",
+          "method": "GET",
+          "path_template": "/aviation/sigmets/{atsu}/{date}/{time}",
+          "path_params": {
+            "atsu": "sample_atsu",
+            "date": "2026-01-01",
+            "time": "sample_time"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "neg_aviation",
+      "name": "Boundary Negative: Aviation Invalid Parameters",
+      "description": "Exercises boundary rejection with non-existent identifiers in aviation.",
+      "scenario_type": "BOUNDARY_NEGATIVE",
+      "tags": [],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "neg_aviation_step_cwsu",
+          "operation_id": "cwsu",
+          "method": "GET",
+          "path_template": "/aviation/cwsus/{cwsuId}",
+          "path_params": {
+            "cwsuId": "invalid_nonexistent_id_999999"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "fallback_stations",
+      "name": "Baseline Flow: Stations",
+      "description": "Deterministic baseline workflow covering 7 endpoints in stations.",
+      "scenario_type": "HAPPY_PATH_E2E",
+      "tags": [],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "fallback_stations_step_1_station_observation_list",
+          "operation_id": "station_observation_list",
+          "method": "GET",
+          "path_template": "/stations/{stationId}/observations",
+          "path_params": {
+            "stationId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_stations_step_2_station_observation_latest",
+          "operation_id": "station_observation_latest",
+          "method": "GET",
+          "path_template": "/stations/{stationId}/observations/latest",
+          "path_params": {
+            "stationId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_stations_step_3_station_observation_time",
+          "operation_id": "station_observation_time",
+          "method": "GET",
+          "path_template": "/stations/{stationId}/observations/{time}",
+          "path_params": {
+            "stationId": "1",
+            "time": "2026-01-01"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_stations_step_4_tafs",
+          "operation_id": "tafs",
+          "method": "GET",
+          "path_template": "/stations/{stationId}/tafs",
+          "path_params": {
+            "stationId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_stations_step_5_taf",
+          "operation_id": "taf",
+          "method": "GET",
+          "path_template": "/stations/{stationId}/tafs/{date}/{time}",
+          "path_params": {
+            "stationId": "1",
+            "date": "2026-01-01",
+            "time": "sample_time"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_stations_step_6_obs_stations",
+          "operation_id": "obs_stations",
+          "method": "GET",
+          "path_template": "/stations",
+          "path_params": {},
+          "query_params": {
+            "limit": 500
+          },
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_stations_step_7_obs_station",
+          "operation_id": "obs_station",
+          "method": "GET",
+          "path_template": "/stations/{stationId}",
+          "path_params": {
+            "stationId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "neg_stations",
+      "name": "Boundary Negative: Stations Invalid Parameters",
+      "description": "Exercises boundary rejection with non-existent identifiers in stations.",
+      "scenario_type": "BOUNDARY_NEGATIVE",
+      "tags": [],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "neg_stations_step_station_observation_list",
+          "operation_id": "station_observation_list",
+          "method": "GET",
+          "path_template": "/stations/{stationId}/observations",
+          "path_params": {
+            "stationId": "invalid_nonexistent_id_999999"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "fallback_radar",
+      "name": "Baseline Flow: Radar",
+      "description": "Deterministic baseline workflow covering 7 endpoints in radar.",
+      "scenario_type": "HAPPY_PATH_E2E",
+      "tags": [],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "fallback_radar_step_1_radar_servers",
+          "operation_id": "radar_servers",
+          "method": "GET",
+          "path_template": "/radar/servers",
+          "path_params": {},
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_radar_step_2_radar_server",
+          "operation_id": "radar_server",
+          "method": "GET",
+          "path_template": "/radar/servers/{id}",
+          "path_params": {
+            "id": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_radar_step_3_radar_stations",
+          "operation_id": "radar_stations",
+          "method": "GET",
+          "path_template": "/radar/stations",
+          "path_params": {},
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_radar_step_4_radar_station",
+          "operation_id": "radar_station",
+          "method": "GET",
+          "path_template": "/radar/stations/{stationId}",
+          "path_params": {
+            "stationId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_radar_step_5_radar_station_alarms",
+          "operation_id": "radar_station_alarms",
+          "method": "GET",
+          "path_template": "/radar/stations/{stationId}/alarms",
+          "path_params": {
+            "stationId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_radar_step_6_radar_queue",
+          "operation_id": "radar_queue",
+          "method": "GET",
+          "path_template": "/radar/queues/{host}",
+          "path_params": {
+            "host": "sample_host"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_radar_step_7_radar_profiler",
+          "operation_id": "radar_profiler",
+          "method": "GET",
+          "path_template": "/radar/profilers/{stationId}",
+          "path_params": {
+            "stationId": "1"
+          },
+          "query_params": {
+            "interval": "P2DT12H"
+          },
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "neg_radar",
+      "name": "Boundary Negative: Radar Invalid Parameters",
+      "description": "Exercises boundary rejection with non-existent identifiers in radar.",
+      "scenario_type": "BOUNDARY_NEGATIVE",
+      "tags": [],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "neg_radar_step_radar_server",
+          "operation_id": "radar_server",
+          "method": "GET",
+          "path_template": "/radar/servers/{id}",
+          "path_params": {
+            "id": "invalid_nonexistent_id_999999"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "fallback_auxiliary_endpoints",
+      "name": "Baseline Flow: Auxiliary Endpoints",
+      "description": "Deterministic baseline workflow covering 20 endpoints in auxiliary_endpoints.",
+      "scenario_type": "HAPPY_PATH_E2E",
+      "tags": [],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_1_zone_list",
+          "operation_id": "zone_list",
+          "method": "GET",
+          "path_template": "/zones",
+          "path_params": {},
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_2_zone_list_type",
+          "operation_id": "zone_list_type",
+          "method": "GET",
+          "path_template": "/zones/{type}",
+          "path_params": {
+            "type": "sample_type"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_3_zone",
+          "operation_id": "zone",
+          "method": "GET",
+          "path_template": "/zones/{type}/{zoneId}",
+          "path_params": {
+            "type": "sample_type",
+            "zoneId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_4_zone_forecast",
+          "operation_id": "zone_forecast",
+          "method": "GET",
+          "path_template": "/zones/{type}/{zoneId}/forecast",
+          "path_params": {
+            "type": "sample_type",
+            "zoneId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_5_zone_obs",
+          "operation_id": "zone_obs",
+          "method": "GET",
+          "path_template": "/zones/forecast/{zoneId}/observations",
+          "path_params": {
+            "zoneId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_6_zone_stations",
+          "operation_id": "zone_stations",
+          "method": "GET",
+          "path_template": "/zones/forecast/{zoneId}/stations",
+          "path_params": {
+            "zoneId": "1"
+          },
+          "query_params": {
+            "limit": 500
+          },
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_7_gridpoint",
+          "operation_id": "gridpoint",
+          "method": "GET",
+          "path_template": "/gridpoints/{wfo}/{x},{y}",
+          "path_params": {
+            "wfo": "sample_wfo",
+            "x": 1,
+            "y": 1
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_8_gridpoint_forecast",
+          "operation_id": "gridpoint_forecast",
+          "method": "GET",
+          "path_template": "/gridpoints/{wfo}/{x},{y}/forecast",
+          "path_params": {
+            "wfo": "sample_wfo",
+            "x": 1,
+            "y": 1
+          },
+          "query_params": {
+            "units": "us"
+          },
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_9_gridpoint_forecast_hourly",
+          "operation_id": "gridpoint_forecast_hourly",
+          "method": "GET",
+          "path_template": "/gridpoints/{wfo}/{x},{y}/forecast/hourly",
+          "path_params": {
+            "wfo": "sample_wfo",
+            "x": 1,
+            "y": 1
+          },
+          "query_params": {
+            "units": "us"
+          },
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_10_gridpoint_stations",
+          "operation_id": "gridpoint_stations",
+          "method": "GET",
+          "path_template": "/gridpoints/{wfo}/{x},{y}/stations",
+          "path_params": {
+            "wfo": "sample_wfo",
+            "x": 1,
+            "y": 1
+          },
+          "query_params": {
+            "limit": 500
+          },
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_11_icons",
+          "operation_id": "icons",
+          "method": "GET",
+          "path_template": "/icons/{set}/{timeOfDay}/{first}",
+          "path_params": {
+            "set": "sample_set",
+            "timeOfDay": "sample_timeOfDay",
+            "first": "sample_first"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_12_iconsDualCondition",
+          "operation_id": "iconsDualCondition",
+          "method": "GET",
+          "path_template": "/icons/{set}/{timeOfDay}/{first}/{second}",
+          "path_params": {
+            "set": "sample_set",
+            "timeOfDay": "sample_timeOfDay",
+            "first": "sample_first",
+            "second": "sample_second"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_13_icons_summary",
+          "operation_id": "icons_summary",
+          "method": "GET",
+          "path_template": "/icons",
+          "path_params": {},
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_14_office",
+          "operation_id": "office",
+          "method": "GET",
+          "path_template": "/offices/{officeId}",
+          "path_params": {
+            "officeId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_15_office_headline",
+          "operation_id": "office_headline",
+          "method": "GET",
+          "path_template": "/offices/{officeId}/headlines/{headlineId}",
+          "path_params": {
+            "officeId": "1",
+            "headlineId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_16_office_headlines",
+          "operation_id": "office_headlines",
+          "method": "GET",
+          "path_template": "/offices/{officeId}/headlines",
+          "path_params": {
+            "officeId": "1"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_17_point",
+          "operation_id": "point",
+          "method": "GET",
+          "path_template": "/points/{latitude},{longitude}",
+          "path_params": {
+            "latitude": 1.0,
+            "longitude": 1.0
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_18_point_stations",
+          "operation_id": "point_stations",
+          "method": "GET",
+          "path_template": "/points/{latitude},{longitude}/stations",
+          "path_params": {
+            "latitude": 1.0,
+            "longitude": 1.0
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_19_glossary",
+          "operation_id": "glossary",
+          "method": "GET",
+          "path_template": "/glossary",
+          "path_params": {},
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        },
+        {
+          "step_id": "fallback_auxiliary_endpoints_step_20_satellite_thumbnails",
+          "operation_id": "satellite_thumbnails",
+          "method": "GET",
+          "path_template": "/thumbnails/satellite/{area}",
+          "path_params": {
+            "area": "sample_area"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 200,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    },
+    {
+      "scenario_id": "neg_auxiliary_endpoints",
+      "name": "Boundary Negative: Auxiliary Endpoints Invalid Parameters",
+      "description": "Exercises boundary rejection with non-existent identifiers in auxiliary_endpoints.",
+      "scenario_type": "BOUNDARY_NEGATIVE",
+      "tags": [],
+      "setup_steps": [],
+      "test_steps": [
+        {
+          "step_id": "neg_auxiliary_endpoints_step_zone_list_type",
+          "operation_id": "zone_list_type",
+          "method": "GET",
+          "path_template": "/zones/{type}",
+          "path_params": {
+            "type": "invalid_nonexistent_id_999999"
+          },
+          "query_params": {},
+          "headers": {},
+          "request_body": null,
+          "captures": [],
+          "expected_status": 404,
+          "semantic_assertions": [],
+          "timeout_seconds": 10.0
+        }
+      ],
+      "teardown_steps": []
+    }
+  ]
+}
